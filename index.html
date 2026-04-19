@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETF 00981A 主動統一台股增長 - 持股分佈</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <header class="app-header glass-panel fade-in-up">
+            <div class="logo">
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <div class="header-titles">
+                <h1>00981A 主動統一台股增長</h1>
+                <p id="header-subtitle"><i class="fa-solid fa-spinner fa-spin"></i> 載入經理人與績效資訊中...</p>
+            </div>
+        </header>
+
+        <section class="dashboard-content fade-in-up delay-1">
+            <div class="card glass-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-layer-group"></i> 核心持股清單</h2>
+                    <span class="badge" id="update-date">今日最新</span>
+                </div>
+                
+                <div class="table-container">
+                    <table id="holdings-table">
+                        <thead>
+                            <tr>
+                                <th>序號</th>
+                                <th>代號</th>
+                                <th>名稱</th>
+                                <th><i class="fa-solid fa-coins"></i> 股數</th>
+                                <th class="align-right"><i class="fa-solid fa-money-bill"></i> 股價</th>
+                                <th class="align-right"><i class="fa-solid fa-scale-unbalanced"></i> 原比例</th>
+                                <th class="align-right"><i class="fa-solid fa-scale-balanced"></i> 新比例</th>
+                                <th class="align-right"><i class="fa-solid fa-arrow-trend-up"></i> 加/減碼股數</th>
+                                <th class="align-right" id="th-diff-amount" style="cursor: pointer;" title="點擊切換排序"><i class="fa-solid fa-sack-dollar"></i> 加/減碼金額 <i class="fa-solid fa-sort"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdings-body">
+                            <!-- Data populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card glass-panel stats-card">
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fa-solid fa-box"></i></div>
+                    <div class="stat-value">RR4</div>
+                    <div class="stat-label">風險等級</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                    <div class="stat-value">季配息</div>
+                    <div class="stat-label">配息頻率</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js?v=2"></script>
+</body>
+</html>

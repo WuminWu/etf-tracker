@@ -1,0 +1,319 @@
+:root {
+    --bg-color: #0b0f19;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --glass-bg: rgba(30, 41, 59, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --primary-color: #3b82f6;
+    --secondary-color: #8b5cf6;
+    --accent-color: #10b981;
+    --danger-color: #ef4444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Background Animated Blobs */
+.background-blobs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    animation: float 20s infinite alternate;
+}
+
+.blob-1 {
+    top: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, var(--primary-color), transparent 70%);
+    animation-delay: 0s;
+}
+
+.blob-2 {
+    bottom: -10%;
+    right: -10%;
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, var(--secondary-color), transparent 70%);
+    animation-delay: -5s;
+}
+
+.blob-3 {
+    top: 40%;
+    left: 60%;
+    width: 30vw;
+    height: 30vw;
+    background: radial-gradient(circle, var(--accent-color), transparent 70%);
+    animation-delay: -10s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(5%, -5%) scale(1.1); }
+    66% { transform: translate(-5%, 5%) scale(0.9); }
+    100% { transform: translate(0, 0) scale(1); }
+}
+
+/* Base Layout */
+.container {
+    max-width: 95%;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.app-header:hover {
+    transform: translateY(-2px);
+}
+
+.logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+.header-titles h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header-titles p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* Dashboard Content */
+.dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.card {
+    padding: 2rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.card-header h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.card-header h2 i {
+    color: var(--accent-color);
+}
+
+.badge {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent-color);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* Table styles */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 1.2rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.align-right {
+    text-align: right;
+}
+
+tbody tr {
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+    transform: scale(1.01);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.stock-id {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+.stock-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.stock-shares {
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.stock-weight {
+    font-weight: 700;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.weight-pill {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Stats Card */
+.stats-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.stat-item {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s;
+}
+
+.stat-item:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Utility Animations */
+.fade-in-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.delay-1 {
+    animation-delay: 0.2s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .app-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    th, td {
+        padding: 1rem 0.5rem;
+    }
+}
