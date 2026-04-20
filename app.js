@@ -155,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ETF_LIST = [
         { id: '00981A', name: '統一台股增長' },
         { id: '00992A', name: '群益科技創新' },
+        { id: '00982A', name: '群益台灣強棒' },
     ];
 
     let crossSortAsc = false;
