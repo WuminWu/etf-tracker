@@ -70,24 +70,31 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.style.opacity = '0';
             tr.style.transform = 'translateY(10px)';
 
+            const weightDisplay = (() => {
+                const prev = holding.yestWeight;
+                const curr = holding.todayWeight;
+                if (!curr && curr !== 0) return '-';
+                if (!prev && prev !== 0) return `<span class="weight-pill">${curr}%</span>`;
+                if (prev === curr) return `<span class="weight-pill">${curr}%</span>`;
+                const color = curr > prev ? '#ff4d4d' : '#4ade80';
+                return `<span style="color:#9ca3af;font-size:0.8em;">${prev}%</span> <span style="color:${color};">→</span> <span class="weight-pill">${curr}%</span>`;
+            })();
+
             tr.innerHTML = `
                 <td>
                     <span style="display:inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; border-radius: 50%; background: #334155; color: #fff; font-weight: bold;">
                         ${holding.rank}
                     </span>
                 </td>
-                <td class="stock-id">${holding.code}</td>
-                <td class="stock-name">${holding.name}</td>
+                <td>
+                    <div class="stock-id">${holding.code}</div>
+                    <div class="stock-name">${holding.name}</div>
+                </td>
                 <td class="stock-shares">${formatNumber(holding.shares)}</td>
                 <td class="align-right stock-price">
                     $${formatNumber(holding.price, 2)}
                 </td>
-                <td class="align-right">
-                    <span class="weight-pill" style="opacity: 0.7;">${holding.yestWeight ? holding.yestWeight + '%' : '-'}</span>
-                </td>
-                <td class="align-right">
-                    <span class="weight-pill">${holding.todayWeight ? holding.todayWeight + '%' : '-'}</span>
-                </td>
+                <td class="align-right">${weightDisplay}</td>
                 <td class="align-right">
                     ${renderStatus(holding)}
                 </td>
@@ -129,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const etfSelector = document.getElementById('etf-selector');
 
     const loadData = (etfId) => {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 2rem;">載入中，請稍候...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 2rem;">載入中，請稍候...</td></tr>';
         
         fetch(`data_${etfId}.json`)
             .then(response => {
@@ -160,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 console.error("Error fetching data:", error);
-                tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color: #ef4444; padding: 2rem;">無法載入 ${etfId} 的持股資料。</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: #ef4444; padding: 2rem;">無法載入 ${etfId} 的持股資料。</td></tr>`;
             });
     };
 

@@ -120,21 +120,41 @@ body {
     box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
+.etf-select-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0.15rem;
+}
+
+.etf-select-arrow {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    pointer-events: none;
+}
+
 .etf-select {
     font-size: 1.8rem;
     font-weight: 700;
-    margin-bottom: 0.3rem;
     background: transparent;
     color: var(--text-primary);
     border: 1px solid var(--glass-border);
     border-radius: 0.5rem;
-    padding: 0.2rem 0.5rem;
+    padding: 0.2rem 2rem 0.2rem 0.5rem;
     cursor: pointer;
     outline: none;
     font-family: inherit;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    transition: border-color 0.2s;
+}
+
+.etf-select:hover {
+    border-color: var(--accent-blue);
 }
 
 .etf-select option {
@@ -142,9 +162,29 @@ body {
     color: var(--text-primary);
 }
 
-.header-titles p {
+.etf-switch-hint {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    margin-bottom: 0.3rem;
+    opacity: 0.7;
+}
+
+.header-titles p#header-subtitle {
     color: var(--text-secondary);
     font-size: 0.95rem;
+}
+
+.stock-id {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.stock-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 /* Dashboard Content */
@@ -247,16 +287,6 @@ tbody tr:last-child td {
     border-bottom: none;
 }
 
-.stock-id {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: var(--primary-color);
-}
-
-.stock-name {
-    font-weight: 700;
-    font-size: 1.05rem;
-}
 
 .stock-shares {
     color: var(--text-secondary);

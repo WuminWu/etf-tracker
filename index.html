@@ -26,10 +26,14 @@
                 <i class="fa-solid fa-chart-pie"></i>
             </div>
             <div class="header-titles">
-                <select id="etf-selector" class="etf-select">
-                    <option value="00981A">00981A 主動統一台股增長</option>
-                    <option value="00992A">00992A 主動群益科技創新ETF</option>
-                </select>
+                <div class="etf-select-wrapper">
+                    <i class="fa-solid fa-caret-down etf-select-arrow"></i>
+                    <select id="etf-selector" class="etf-select">
+                        <option value="00981A">00981A 主動統一台股增長</option>
+                        <option value="00992A">00992A 主動群益科技創新ETF</option>
+                    </select>
+                </div>
+                <p class="etf-switch-hint"><i class="fa-solid fa-repeat"></i> 點擊上方名稱可切換 ETF 標的</p>
                 <p id="header-subtitle"><i class="fa-solid fa-spinner fa-spin"></i> 載入經理人與績效資訊中...</p>
             </div>
         </header>
@@ -50,12 +54,10 @@
                         <thead>
                             <tr>
                                 <th>序號</th>
-                                <th>代號</th>
-                                <th>名稱</th>
+                                <th>股票</th>
                                 <th><i class="fa-solid fa-coins"></i> 股數</th>
                                 <th class="align-right"><i class="fa-solid fa-money-bill"></i> 股價</th>
-                                <th class="align-right"><i class="fa-solid fa-scale-unbalanced"></i> 原比例</th>
-                                <th class="align-right"><i class="fa-solid fa-scale-balanced"></i> 新比例</th>
+                                <th class="align-right"><i class="fa-solid fa-scale-balanced"></i> 比例</th>
                                 <th class="align-right"><i class="fa-solid fa-tag"></i> 狀態</th>
                                 <th class="align-right"><i class="fa-solid fa-arrow-trend-up"></i> 加/減碼股數</th>
                                 <th class="align-right" id="th-diff-amount" style="cursor: pointer;" title="點擊切換排序"><i class="fa-solid fa-sack-dollar"></i> 加/減碼金額 <i class="fa-solid fa-sort"></i></th>
