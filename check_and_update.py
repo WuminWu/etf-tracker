@@ -184,10 +184,10 @@ def get_price(code):
     for suffix in [".TW", ".TWO"]:
         try:
             ticker = yf.Ticker(f"{code}{suffix}")
-            hist = ticker.history(period="1d")
+            hist = ticker.history(period="1d", timeout=10)
             if not hist.empty:
                 return float(hist["Close"].iloc[-1])
-        except:
+        except Exception:
             pass
     return 0.0
 
