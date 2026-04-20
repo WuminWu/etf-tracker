@@ -253,22 +253,27 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
                 "rank": len(final_output) + 1,
             })
 
-    # Calculate YTD
+    # Calculate YTD & ETF Price
     ytd_val = "0.0"
+    etf_price = 0.0
     try:
-        ytd_hist = yf.Ticker("00981A.TW").history(period="ytd")
+        etf_ticker = yf.Ticker("00981A.TW")
+        ytd_hist = etf_ticker.history(period="ytd", timeout=10)
         if len(ytd_hist) >= 2:
             first_price = ytd_hist["Close"].iloc[0]
             last_price = ytd_hist["Close"].iloc[-1]
             ytd_calc = ((last_price - first_price) / first_price) * 100
             ytd_val = f"{ytd_calc:.2f}"
-    except:
-        pass
+            etf_price = round(float(last_price), 2)
+            log.info(f"ETF Price: {etf_price}, YTD: {ytd_val}%")
+    except Exception as e:
+        log.warning(f"Failed to fetch ETF price/YTD: {e}")
 
     wrapper = {
         "meta": {
             "manager": "陳釧瑤",
             "ytd": ytd_val,
+            "etfPrice": etf_price,
             "dataDate": data_date_str,
             "lastUpdate": datetime.now().strftime("%Y-%m-%d %H:%M"),
         },

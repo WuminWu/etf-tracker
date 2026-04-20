@@ -112,7 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Render Subtitle & Date
                 const elSubtitle = document.getElementById('header-subtitle');
                 if (elSubtitle) {
-                    elSubtitle.innerHTML = `<i class="fa-solid fa-user-tie"></i> 經理人：${meta.manager} &nbsp;|&nbsp; <i class="fa-solid fa-chart-line"></i> 今年以來(YTD)績效：<span style="color: ${meta.ytd >= 0 ? '#ff4d4d' : '#4ade80'}; font-weight: bold;">${meta.ytd > 0 ? '+' : ''}${meta.ytd}%</span>`;
+                    const priceStr = meta.etfPrice ? ` &nbsp;|&nbsp; <i class="fa-solid fa-dollar-sign"></i> 股價：<span style="color: #60a5fa; font-weight: bold;">${Number(meta.etfPrice).toFixed(2)}</span>` : '';
+                    elSubtitle.innerHTML = `<i class="fa-solid fa-user-tie"></i> 經理人：${meta.manager}${priceStr} &nbsp;|&nbsp; <i class="fa-solid fa-chart-line"></i> 今年以來(YTD)績效：<span style="color: ${meta.ytd >= 0 ? '#ff4d4d' : '#4ade80'}; font-weight: bold;">${meta.ytd > 0 ? '+' : ''}${meta.ytd}%</span>`;
                 }
                 
                 if (meta.dataDate) {
