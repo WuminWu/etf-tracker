@@ -286,15 +286,30 @@ def send_telegram(message):
         log.warning(f"Failed to send Telegram notification: {e}")
 
 
+def fmt_zhang(shares):
+    """Format shares as 張 (1張=1000股), with sign."""
+    zhang = shares / 1000
+    sign = "+" if zhang > 0 else ""
+    if zhang == int(zhang):
+        return f"{sign}{int(zhang):,}張"
+    return f"{sign}{zhang:,.1f}張"
+
+
 def build_notification(wrapper, etf_code="00992A", etf_name="群益科技創新"):
     """Build a summary notification message from the data wrapper."""
     meta = wrapper["meta"]
     holdings = wrapper["holdings"]
 
-    added = [h for h in holdings if h.get("prevShares", 0) == 0 and h["shares"] > 0]
-    removed = [h for h in holdings if h["shares"] == 0 and h.get("prevShares", 0) > 0]
-    increased = [h for h in holdings if h["shares"] > 0 and h.get("diffShares", 0) > 0 and h.get("prevShares", 0) > 0]
-    decreased = [h for h in holdings if h["shares"] > 0 and h.get("diffShares", 0) < 0]
+    added    = [h for h in holdings if h.get("prevShares", 0) == 0 and h["shares"] > 0]
+    removed  = [h for h in holdings if h["shares"] == 0 and h.get("prevShares", 0) > 0]
+    increased = sorted(
+        [h for h in holdings if h["shares"] > 0 and h.get("diffShares", 0) > 0 and h.get("prevShares", 0) > 0],
+        key=lambda x: x["diffShares"], reverse=True
+    )
+    decreased = sorted(
+        [h for h in holdings if h["shares"] > 0 and h.get("diffShares", 0) < 0],
+        key=lambda x: x["diffShares"]
+    )
 
     ytd_sign = "+" if float(meta["ytd"]) >= 0 else ""
     lines = [
@@ -310,11 +325,24 @@ def build_notification(wrapper, etf_code="00992A", etf_name="群益科技創新"
     if added:
         lines.append("\n✨ <b>新增持股：</b>")
         for h in added:
-            lines.append(f"  • {h['code']} {h['name']}（{h['todayWeight']}%）")
+            zhang = fmt_zhang(h["shares"])
+            lines.append(f"  • {h['code']} {h['name']}　{zhang}（{h['todayWeight']}%）")
+
     if removed:
         lines.append("\n🚫 <b>出清持股：</b>")
         for h in removed:
-            lines.append(f"  • {h['code']} {h['name']}")
+            zhang = fmt_zhang(-h.get("prevShares", 0))
+            lines.append(f"  • {h['code']} {h['name']}　{zhang}")
+
+    if increased:
+        lines.append("\n🔴 <b>加碼明細：</b>")
+        for h in increased:
+            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}")
+
+    if decreased:
+        lines.append("\n🟢 <b>減碼明細：</b>")
+        for h in decreased:
+            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}")
 
     lines.append(f"\n🕐 更新時間：{meta['lastUpdate']}")
     lines.append("🔗 https://wuminwu.github.io/etf-tracker/")
