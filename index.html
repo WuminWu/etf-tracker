@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ETF Tracker - 持股分佈</title>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div class="background-blobs">
@@ -26,19 +23,30 @@
                 <i class="fa-solid fa-chart-pie"></i>
             </div>
             <div class="header-titles">
-                <div class="etf-select-wrapper">
+                <div class="etf-select-wrapper" id="etf-select-wrapper">
                     <i class="fa-solid fa-caret-down etf-select-arrow"></i>
                     <select id="etf-selector" class="etf-select">
                         <option value="00981A">00981A 主動統一台股增長</option>
                         <option value="00992A">00992A 主動群益科技創新ETF</option>
                     </select>
                 </div>
-                <p class="etf-switch-hint"><i class="fa-solid fa-repeat"></i> 點擊上方名稱可切換 ETF 標的</p>
+                <p class="etf-switch-hint" id="etf-switch-hint"><i class="fa-solid fa-repeat"></i> 點擊上方名稱可切換 ETF 標的</p>
                 <p id="header-subtitle"><i class="fa-solid fa-spinner fa-spin"></i> 載入經理人與績效資訊中...</p>
             </div>
         </header>
 
-        <section class="dashboard-content fade-in-up delay-1">
+        <!-- Page Tabs -->
+        <nav class="page-tabs fade-in-up">
+            <button class="tab-btn active" data-tab="holdings">
+                <i class="fa-solid fa-layer-group"></i> 持股清單
+            </button>
+            <button class="tab-btn" data-tab="cross">
+                <i class="fa-solid fa-code-compare"></i> ETF持股交叉比對
+            </button>
+        </nav>
+
+        <!-- Tab: Holdings -->
+        <section class="dashboard-content fade-in-up delay-1" id="tab-holdings">
             <div class="card glass-panel">
                 <div class="card-header">
                     <h2><i class="fa-solid fa-layer-group"></i> 核心持股清單</h2>
@@ -48,7 +56,6 @@
                     <i class="fa-regular fa-clock"></i>
                     <span id="last-update-time">資料載入中...</span>
                 </div>
-                
                 <div class="table-container">
                     <table id="holdings-table">
                         <thead>
@@ -63,9 +70,7 @@
                                 <th class="align-right" id="th-diff-amount" style="cursor: pointer;" title="點擊切換排序"><i class="fa-solid fa-sack-dollar"></i> 加/減碼金額 <i class="fa-solid fa-sort"></i></th>
                             </tr>
                         </thead>
-                        <tbody id="holdings-body">
-                            <!-- Data populated by JS -->
-                        </tbody>
+                        <tbody id="holdings-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -83,8 +88,37 @@
                 </div>
             </div>
         </section>
+
+        <!-- Tab: Cross Compare -->
+        <section class="dashboard-content fade-in-up delay-1" id="tab-cross" style="display:none;">
+            <div class="card glass-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-code-compare"></i> ETF持股交叉比對</h2>
+                    <span class="badge" id="cross-badge">載入中...</span>
+                </div>
+                <div class="last-update-bar">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="cross-update-time">資料載入中...</span>
+                </div>
+                <div class="table-container">
+                    <table id="cross-table">
+                        <thead>
+                            <tr>
+                                <th>序號</th>
+                                <th>股票</th>
+                                <th><i class="fa-solid fa-layer-group"></i> 持有 ETF 與比例</th>
+                                <th class="align-right" id="th-cross-etf-count" style="cursor:pointer;" title="點擊切換排序">
+                                    <i class="fa-solid fa-hashtag"></i> 持有 ETF 數 <i class="fa-solid fa-sort-down"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="cross-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
