@@ -308,7 +308,6 @@ def send_telegram(message):
         payload = urllib.parse.urlencode({
             "chat_id": TELEGRAM_CHAT_ID,
             "text": message,
-            "parse_mode": "HTML",
         }).encode()
         req = urllib.request.Request(url, data=payload, method="POST")
         with urllib.request.urlopen(req, timeout=10) as resp:
@@ -348,7 +347,7 @@ def build_notification(wrapper, etf_code="00981A", etf_name="統一台股增長"
 
     ytd_sign = "+" if float(meta["ytd"]) >= 0 else ""
     lines = [
-        f"📊 <b>{etf_code} {etf_name} 持股更新</b>",
+        f"📊 {etf_code} {etf_name} 持股更新",
         f"📅 資料日期：{meta['dataDate']}",
         f"💰 ETF 股價：{meta['etfPrice']}　　YTD：{ytd_sign}{meta['ytd']}%",
         f"📦 持股數量：{len([h for h in holdings if h['shares'] > 0])} 檔",
@@ -358,24 +357,24 @@ def build_notification(wrapper, etf_code="00981A", etf_name="統一台股增長"
     ]
 
     if added:
-        lines.append("\n✨ <b>新增持股：</b>")
+        lines.append("\n✨ 新增持股：")
         for h in added:
             zhang = fmt_zhang(h["shares"])
             lines.append(f"  • {h['code']} {h['name']}　{zhang}（{h['todayWeight']}%）")
 
     if removed:
-        lines.append("\n🚫 <b>出清持股：</b>")
+        lines.append("\n🚫 出清持股：")
         for h in removed:
             zhang = fmt_zhang(-h.get("prevShares", 0))
             lines.append(f"  • {h['code']} {h['name']}　{zhang}")
 
     if increased:
-        lines.append("\n🔴 <b>加碼明細：</b>")
+        lines.append("\n🔴 加碼明細：")
         for h in increased:
             lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}")
 
     if decreased:
-        lines.append("\n🟢 <b>減碼明細：</b>")
+        lines.append("\n🟢 減碼明細：")
         for h in decreased:
             lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}")
 
