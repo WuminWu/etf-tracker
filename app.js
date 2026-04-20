@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let diffSortState = 0;
     let globalData = [];
     
-    const today = new Date();
-    updateBadge.textContent = `最新交易日差異比較 (${today.toLocaleDateString('zh-TW')})`;
+    // Initial badge state
+    updateBadge.textContent = `最新交易日差異比較 (...)`;
     
     // Number formatter
     const formatNumber = (num, decimals=0) => {
@@ -109,10 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const meta = data.meta;
                 globalData = data.holdings;
                 
-                // Render Subtitle
+                // Render Subtitle & Date
                 const elSubtitle = document.getElementById('header-subtitle');
                 if (elSubtitle) {
                     elSubtitle.innerHTML = `<i class="fa-solid fa-user-tie"></i> 經理人：${meta.manager} &nbsp;|&nbsp; <i class="fa-solid fa-chart-line"></i> 今年以來(YTD)績效：<span style="color: ${meta.ytd >= 0 ? '#ff4d4d' : '#4ade80'}; font-weight: bold;">${meta.ytd > 0 ? '+' : ''}${meta.ytd}%</span>`;
+                }
+                
+                if (meta.dataDate) {
+                    updateBadge.textContent = `最新交易日差異比較 (${meta.dataDate})`;
                 }
 
                 applySortAndRender();

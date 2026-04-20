@@ -192,7 +192,7 @@ def get_price(code):
     return 0.0
 
 
-def generate_data_json(today_holdings, prev_holdings):
+def generate_data_json(today_holdings, prev_holdings, data_date_str):
     """Compare today vs previous holdings, fetch prices, generate data_00981A.json."""
     prev_dict = {h["code"]: h for h in prev_holdings}
 
@@ -269,6 +269,7 @@ def generate_data_json(today_holdings, prev_holdings):
         "meta": {
             "manager": "陳釧瑤",
             "ytd": ytd_val,
+            "dataDate": data_date_str,
             "lastUpdate": datetime.now().strftime("%Y-%m-%d %H:%M"),
         },
         "holdings": final_output,
@@ -341,7 +342,7 @@ def main():
 
     # 4. Load previous day's holdings and generate diff
     prev_holdings = get_previous_holdings()
-    generate_data_json(today_holdings, prev_holdings)
+    generate_data_json(today_holdings, prev_holdings, file_date.strftime("%Y-%m-%d"))
 
     # 5. Push to GitHub
     git_push()
