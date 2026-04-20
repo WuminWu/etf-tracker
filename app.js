@@ -95,27 +95,38 @@ document.addEventListener('DOMContentLoaded', () => {
         applySortAndRender();
     });
 
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 2rem;">載入中，請稍候...</td></tr>';
+    const etfSelector = document.getElementById('etf-selector');
 
-    fetch('data.json')
-        .then(response => {
-            if(!response.ok) throw new Error("無資料檔");
-            return response.json();
-        })
-        .then(data => {
-            const meta = data.meta;
-            globalData = data.holdings;
-            
-            // Render Subtitle
-            const elSubtitle = document.getElementById('header-subtitle');
-            if (elSubtitle) {
-                elSubtitle.innerHTML = `<i class="fa-solid fa-user-tie"></i> 經理人：${meta.manager} &nbsp;|&nbsp; <i class="fa-solid fa-chart-line"></i> 今年以來(YTD)績效：<span style="color: ${meta.ytd >= 0 ? '#ff4d4d' : '#4ade80'}; font-weight: bold;">${meta.ytd > 0 ? '+' : ''}${meta.ytd}%</span>`;
-            }
+    const loadData = (etfId) => {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 2rem;">載入中，請稍候...</td></tr>';
+        
+        fetch(`data_${etfId}.json`)
+            .then(response => {
+                if(!response.ok) throw new Error("無資料檔");
+                return response.json();
+            })
+            .then(data => {
+                const meta = data.meta;
+                globalData = data.holdings;
+                
+                // Render Subtitle
+                const elSubtitle = document.getElementById('header-subtitle');
+                if (elSubtitle) {
+                    elSubtitle.innerHTML = `<i class="fa-solid fa-user-tie"></i> 經理人：${meta.manager} &nbsp;|&nbsp; <i class="fa-solid fa-chart-line"></i> 今年以來(YTD)績效：<span style="color: ${meta.ytd >= 0 ? '#ff4d4d' : '#4ade80'}; font-weight: bold;">${meta.ytd > 0 ? '+' : ''}${meta.ytd}%</span>`;
+                }
 
-            applySortAndRender();
-        })
-        .catch(error => {
-            console.error("Error fetching data:", error);
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color: #ef4444; padding: 2rem;">無法載入持股資料。請先執行 Python 爬蟲更新 data.json</td></tr>';
-        });
+                applySortAndRender();
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: #ef4444; padding: 2rem;">無法載入 ${etfId} 的持股資料。</td></tr>`;
+            });
+    };
+
+    etfSelector.addEventListener('change', (e) => {
+        loadData(e.target.value);
+    });
+
+    // Initial load
+    loadData(etfSelector.value);
 });

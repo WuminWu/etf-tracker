@@ -120,13 +120,26 @@ body {
     box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
-.header-titles h1 {
+.etf-select {
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 0.3rem;
-    background: linear-gradient(to right, #fff, #94a3b8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    outline: none;
+    font-family: inherit;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.etf-select option {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
 }
 
 .header-titles p {
