@@ -168,6 +168,19 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const loadYtdRanking = () => {
+        fetch('data_index.json')
+            .then(r => r.ok ? r.json() : null)
+            .then(idx => {
+                if (idx?.twii_ytd != null) {
+                    const val = parseFloat(idx.twii_ytd);
+                    const sign = val >= 0 ? '+' : '';
+                    const color = val >= 0 ? '#ff4d4d' : '#4ade80';
+                    document.getElementById('twii-ytd-display').innerHTML =
+                        `(加權指數績效 <span style="color:${color};font-weight:700">${sign}${val.toFixed(2)}%</span>)`;
+                }
+            })
+            .catch(() => {});
+
         Promise.all(ALL_ETFS.map(etf =>
             fetch(`data_${etf.id}.json`)
                 .then(r => r.ok ? r.json() : null)
