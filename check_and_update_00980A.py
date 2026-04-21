@@ -31,7 +31,7 @@ API_URL = "https://www.nomurafunds.com.tw/API/ETFAPI/api/Fund/GetFundAssets"
 HOLDINGS_DIR = "holdings"
 DATA_FILE = "data_00980A.json"
 ETF_CODE = "00980A"
-MANAGER = "待確認"
+MANAGER = "游景德"
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
