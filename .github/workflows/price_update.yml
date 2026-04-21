@@ -1,0 +1,42 @@
+name: Midday ETF Price Update
+
+on:
+  schedule:
+    # 05:30 UTC = 13:30 Taiwan (UTC+8) — market closes at 13:30
+    - cron: '30 5 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance
+
+      - name: Update ETF prices
+        run: python update_prices.py
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data_*.json
+          git diff --quiet && git diff --staged --quiet || \
+            git commit -m "Midday price update $(date +'%Y-%m-%d %H:%M')" && git push
