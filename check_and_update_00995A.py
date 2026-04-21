@@ -14,7 +14,7 @@ import subprocess
 import sys
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 
 from dotenv import load_dotenv
@@ -220,7 +220,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         "meta": {
             "manager": MANAGER, "ytd": ytd_val, "etfPrice": etf_price,
             "dataDate": data_date_str,
-            "lastUpdate": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "lastUpdate": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"),
         },
         "holdings": final_output,
     }
@@ -293,7 +293,7 @@ def build_notification(wrapper):
 def git_push():
     try:
         subprocess.run(["git", "add", "-A"], check=True)
-        subprocess.run(["git", "commit", "-m", f"Auto-update {ETF_CODE} holdings {datetime.now().strftime('%Y-%m-%d %H:%M')}"], check=True)
+        subprocess.run(["git", "commit", "-m", f"Auto-update {ETF_CODE} holdings {datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M')}"], check=True)
         subprocess.run(["git", "push"], check=True)
         log.info("Git push completed.")
     except subprocess.CalledProcessError as e:

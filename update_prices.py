@@ -5,7 +5,7 @@ Also refreshes data_index.json (TWII YTD).
 """
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import yfinance as yf
@@ -39,7 +39,7 @@ def fetch_ytd_price(ticker_symbol):
 
 
 def update_etf_prices():
-    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now_str = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M")
     updated = []
 
     for code, data_file in ETFS:

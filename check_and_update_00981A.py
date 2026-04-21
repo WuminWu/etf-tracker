@@ -16,7 +16,7 @@ import glob
 import subprocess
 import time
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import urllib.request
 import urllib.parse
@@ -66,7 +66,7 @@ def minguo_to_date(minguo_str):
 
 def today_holdings_exist():
     """Check if we already have today's holdings file."""
-    today_str = datetime.now().strftime("%Y-%m-%d")
+    today_str = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
     filepath = os.path.join(HOLDINGS_DIR, f"00981A_holdings_{today_str}.json")
     return os.path.exists(filepath)
 
@@ -171,7 +171,7 @@ def get_previous_holdings():
     pattern = os.path.join(HOLDINGS_DIR, "00981A_holdings_*.json")
     files = sorted(glob.glob(pattern))
 
-    today_str = datetime.now().strftime("%Y-%m-%d")
+    today_str = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
     # Filter out today's file and temporary files
     prev_files = [
         f for f in files
@@ -286,7 +286,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
             "ytd": ytd_val,
             "etfPrice": etf_price,
             "dataDate": data_date_str,
-            "lastUpdate": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "lastUpdate": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"),
         },
         "holdings": final_output,
     }
@@ -387,7 +387,7 @@ def git_push():
     """Commit and push changes to GitHub."""
     try:
         subprocess.run(["git", "add", "-A"], check=True)
-        msg = f"Auto-update holdings {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+        msg = f"Auto-update holdings {datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M')}"
         subprocess.run(["git", "commit", "-m", msg], check=True)
         subprocess.run(["git", "push"], check=True)
         log.info("Git push completed successfully.")

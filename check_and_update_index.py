@@ -1,7 +1,7 @@
 import json
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import yfinance as yf
 
@@ -22,7 +22,7 @@ def update_twii_ytd():
 
     data = {
         "twii_ytd": twii_ytd,
-        "lastUpdate": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "lastUpdate": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"),
     }
     with open("data_index.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
