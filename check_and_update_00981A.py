@@ -166,6 +166,33 @@ def parse_holdings_from_xlsx(xlsx_path):
     return stock_data
 
 
+def parse_aum_from_xlsx(xlsx_path):
+    """Parse AUM from ezmoney XLSX header rows (before holdings at row 19)."""
+    try:
+        df = pd.read_excel(xlsx_path)
+        aum_ntd, units = 0, 0
+        for i in range(min(15, len(df))):
+            row = df.iloc[i]
+            cell0 = str(row.iloc[0]).strip() if pd.notna(row.iloc[0]) else ""
+            cell1 = str(row.iloc[1]) if len(row) > 1 and pd.notna(row.iloc[1]) else ""
+            if "淨資產" in cell0 and cell1:
+                aum_str = str(cell1).replace("NTD", "").replace(",", "").strip()
+                try:
+                    aum_ntd = int(float(aum_str))
+                except Exception:
+                    pass
+            elif "流通在外單位數" in cell0 and cell1:
+                try:
+                    units = int(float(str(cell1).replace(",", "").strip()))
+                except Exception:
+                    pass
+        log.info(f"AUM from XLSX: {aum_ntd:,} NTD ({aum_ntd/1e8:.2f}億), Units: {units:,}")
+        return aum_ntd, units
+    except Exception as e:
+        log.warning(f"AUM parse from XLSX failed: {e}")
+        return 0, 0
+
+
 def get_previous_holdings():
     """Find the most recent previous holdings JSON file and load it."""
     pattern = os.path.join(HOLDINGS_DIR, "00981A_holdings_*.json")
@@ -201,7 +228,7 @@ def get_price(code):
     return 0.0
 
 
-def generate_data_json(today_holdings, prev_holdings, data_date_str):
+def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, units=0):
     """Compare today vs previous holdings, fetch prices, generate data_00981A.json."""
     prev_dict = {h["code"]: h for h in prev_holdings}
 
@@ -281,17 +308,10 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         log.warning(f"Failed to fetch ETF price/YTD: {e}")
 
 
-    # Fetch ETF total assets (AUM) to derive 總股數 & 市值
-    total_shares_raw, prev_total_shares, prev_total_market_cap = 0, 0, 0.0
-    total_market_cap = 0.0
-    try:
-        _info = yf.Ticker(f"{ETF_CODE}.TW").info
-        _assets = float(_info.get("totalAssets") or 0)
-        if _assets > 0 and etf_price > 0:
-            total_shares_raw = round(_assets / etf_price)
-            total_market_cap = round(_assets / 1e8, 2)
-    except Exception:
-        pass
+    # AUM from official ezmoney XLSX; fallback to previous values if unavailable
+    total_market_cap = round(aum_ntd / 1e8, 2) if aum_ntd > 0 else 0.0
+    total_shares_raw = units if units > 0 else (round(aum_ntd / etf_price) if aum_ntd > 0 and etf_price > 0 else 0)
+    prev_total_shares, prev_total_market_cap = 0, 0.0
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as _f:
@@ -301,7 +321,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         except Exception:
             pass
     total_shares_zhang = total_shares_raw // 1000
-    # Fallback: if yfinance totalAssets unavailable, keep previous values
+    # Fallback: if official source unavailable, keep previous values
     if total_shares_zhang == 0 and prev_total_shares > 0:
         total_shares_zhang = prev_total_shares
         total_market_cap = round(etf_price * prev_total_shares * 1000 / 1e8, 2) if etf_price > 0 else prev_total_market_cap
@@ -466,6 +486,7 @@ def main():
     # Parse today's holdings
     today_holdings = parse_holdings_from_xlsx(final_xlsx)
     log.info(f"Parsed {len(today_holdings)} stocks from today's holdings")
+    aum_ntd, units = parse_aum_from_xlsx(final_xlsx)
 
     # Save as JSON
     json_path = os.path.join(HOLDINGS_DIR, f"00981A_holdings_{today_str}.json")
@@ -474,7 +495,7 @@ def main():
 
     # 4. Load previous day's holdings and generate diff
     prev_holdings = get_previous_holdings()
-    wrapper = generate_data_json(today_holdings, prev_holdings, file_date.strftime("%Y-%m-%d"))
+    wrapper = generate_data_json(today_holdings, prev_holdings, file_date.strftime("%Y-%m-%d"), aum_ntd=aum_ntd, units=units)
 
     # 5. Push to GitHub
     git_push()

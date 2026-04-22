@@ -92,10 +92,19 @@ def fetch_holdings(date_str):
                 })
             except Exception:
                 pass
-        return holdings
+        # Also extract AUM from FundAsset
+        aum_ntd, units = 0, 0
+        try:
+            fa = result["Entries"]["Data"]["FundAsset"]
+            aum_ntd = int(str(fa.get("Aum", "0")).replace(",", ""))
+            units = int(str(fa.get("Units", "0")).replace(",", ""))
+            log.info(f"AUM: {aum_ntd:,} NTD ({aum_ntd/1e8:.2f}億), Units: {units:,}")
+        except Exception as e:
+            log.warning(f"FundAsset parse failed: {e}")
+        return holdings, aum_ntd, units
     except Exception as e:
         log.error(f"Fetch failed: {e}")
-        return None
+        return None, 0, 0
 
 
 def get_previous_holdings(exclude_date_str):
@@ -122,7 +131,7 @@ def get_price(code):
     return 0.0
 
 
-def generate_data_json(today_holdings, prev_holdings, data_date_str):
+def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, units=0):
     prev_dict = {h["code"]: h for h in prev_holdings}
     final_output = []
     total = len(today_holdings)
@@ -171,17 +180,10 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         log.warning(f"ETF price fetch failed: {e}")
 
 
-    # Fetch ETF total assets (AUM) to derive 總股數 & 市值
-    total_shares_raw, prev_total_shares, prev_total_market_cap = 0, 0, 0.0
-    total_market_cap = 0.0
-    try:
-        _info = yf.Ticker(f"{ETF_CODE}.TW").info
-        _assets = float(_info.get("totalAssets") or 0)
-        if _assets > 0 and etf_price > 0:
-            total_shares_raw = round(_assets / etf_price)
-            total_market_cap = round(_assets / 1e8, 2)
-    except Exception:
-        pass
+    # AUM from official Nomura API; fallback to previous values if unavailable
+    total_market_cap = round(aum_ntd / 1e8, 2) if aum_ntd > 0 else 0.0
+    total_shares_raw = units if units > 0 else (round(aum_ntd / etf_price) if aum_ntd > 0 and etf_price > 0 else 0)
+    prev_total_shares, prev_total_market_cap = 0, 0.0
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as _f:
@@ -191,7 +193,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         except Exception:
             pass
     total_shares_zhang = total_shares_raw // 1000
-    # Fallback: if yfinance totalAssets unavailable, keep previous values
+    # Fallback: if official source unavailable, keep previous values
     if total_shares_zhang == 0 and prev_total_shares > 0:
         total_shares_zhang = prev_total_shares
         total_market_cap = round(etf_price * prev_total_shares * 1000 / 1e8, 2) if etf_price > 0 else prev_total_market_cap
@@ -299,7 +301,7 @@ def main():
         log.info(f"Holdings for {data_date_str} already exist. Nothing to do.")
         return
 
-    today_holdings = fetch_holdings(data_date_str)
+    today_holdings, aum_ntd, units = fetch_holdings(data_date_str)
     if not today_holdings:
         log.error("No holdings fetched. Will retry next hour.")
         send_telegram(f"⏳ 00980A 野村智慧優選 持股尚未更新\n📅 資料日期：{data_date_str}\n🔄 將於下一個小時再次檢查...")
@@ -310,7 +312,7 @@ def main():
         json.dump(today_holdings, f, ensure_ascii=False, indent=2)
 
     prev_holdings = get_previous_holdings(exclude_date_str=data_date_str)
-    wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str)
+    wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=aum_ntd, units=units)
 
     git_push()
     send_telegram(build_notification(wrapper))

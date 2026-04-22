@@ -142,6 +142,32 @@ def fetch_holdings():
         return None
 
 
+def fetch_aum_from_html():
+    """Fetch AUM from the same tsit.com.tw page."""
+    import re
+    try:
+        req = urllib.request.Request(
+            HOLDINGS_URL,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        )
+        with urllib.request.urlopen(req, timeout=30) as r:
+            html = r.read().decode("utf-8", errors="replace")
+        aum_ntd, units = 0, 0
+        # Find 基金淨資產價值(元) value
+        m = re.search(r'基金淨資產價值.*?TWD\s*([\d,]+)', html, re.DOTALL)
+        if m:
+            aum_ntd = int(m.group(1).replace(",", ""))
+        # Find 已發行受益權單位總數 value
+        m2 = re.search(r'已發行受益權單位總數.*?<td[^>]*>([\d,]+)', html, re.DOTALL)
+        if m2:
+            units = int(m2.group(1).replace(",", ""))
+        log.info(f"AUM from HTML: {aum_ntd:,} NTD ({aum_ntd/1e8:.2f}億), Units: {units:,}")
+        return aum_ntd, units
+    except Exception as e:
+        log.warning(f"AUM fetch from HTML failed: {e}")
+        return 0, 0
+
+
 def get_previous_holdings(exclude_date_str):
     pattern = os.path.join(HOLDINGS_DIR, f"{ETF_CODE}_holdings_*.json")
     files = sorted(glob.glob(pattern))
@@ -166,7 +192,7 @@ def get_price(code):
     return 0.0
 
 
-def generate_data_json(today_holdings, prev_holdings, data_date_str):
+def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, units=0):
     prev_dict = {h["code"]: h for h in prev_holdings}
     final_output = []
     total = len(today_holdings)
@@ -215,17 +241,10 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         log.warning(f"ETF price fetch failed: {e}")
 
 
-    # Fetch ETF total assets (AUM) to derive 總股數 & 市值
-    total_shares_raw, prev_total_shares, prev_total_market_cap = 0, 0, 0.0
-    total_market_cap = 0.0
-    try:
-        _info = yf.Ticker(f"{ETF_CODE}.TW").info
-        _assets = float(_info.get("totalAssets") or 0)
-        if _assets > 0 and etf_price > 0:
-            total_shares_raw = round(_assets / etf_price)
-            total_market_cap = round(_assets / 1e8, 2)
-    except Exception:
-        pass
+    # AUM from official tsit HTML; fallback to previous values if unavailable
+    total_market_cap = round(aum_ntd / 1e8, 2) if aum_ntd > 0 else 0.0
+    total_shares_raw = units if units > 0 else (round(aum_ntd / etf_price) if aum_ntd > 0 and etf_price > 0 else 0)
+    prev_total_shares, prev_total_market_cap = 0, 0.0
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as _f:
@@ -235,7 +254,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         except Exception:
             pass
     total_shares_zhang = total_shares_raw // 1000
-    # Fallback: if yfinance totalAssets unavailable, keep previous values
+    # Fallback: if official source unavailable, keep previous values
     if total_shares_zhang == 0 and prev_total_shares > 0:
         total_shares_zhang = prev_total_shares
         total_market_cap = round(etf_price * prev_total_shares * 1000 / 1e8, 2) if etf_price > 0 else prev_total_market_cap
@@ -344,6 +363,7 @@ def main():
         return
 
     today_holdings = fetch_holdings()
+    aum_ntd, units = fetch_aum_from_html()
     if not today_holdings:
         log.error("No holdings fetched. Will retry next hour.")
         send_telegram(f"⏳ 00987A 台新台灣優勢成長 持股尚未更新\n📅 資料日期：{data_date_str}\n🔄 將於下一個小時再次檢查...")
@@ -354,7 +374,7 @@ def main():
         json.dump(today_holdings, f, ensure_ascii=False, indent=2)
 
     prev_holdings = get_previous_holdings(exclude_date_str=data_date_str)
-    wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str)
+    wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=aum_ntd, units=units)
 
     git_push()
     send_telegram(build_notification(wrapper))

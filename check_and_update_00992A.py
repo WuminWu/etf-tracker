@@ -151,6 +151,26 @@ def parse_holdings_from_xlsx(xlsx_path):
     return holdings
 
 
+def parse_aum_from_xlsx(xlsx_path):
+    """Parse AUM from Sheet 0 ('投資組合') of the capitalfund XLSX."""
+    try:
+        df = pd.read_excel(xlsx_path, sheet_name=0, header=None)
+        aum_ntd, units = 0, 0
+        for i in range(len(df)):
+            label = str(df.iloc[i, 0]).strip() if pd.notna(df.iloc[i, 0]) else ""
+            value = str(df.iloc[i, 1]).strip() if pd.notna(df.iloc[i, 1]) else ""
+            val_clean = value.replace("TWD", "").replace(",", "").strip()
+            if "淨資產價值" in label and "單位" not in label and val_clean:
+                aum_ntd = int(float(val_clean))
+            elif "已發行受益權單位總數" in label and val_clean:
+                units = int(float(val_clean))
+        log.info(f"AUM from XLSX: {aum_ntd:,} NTD ({aum_ntd/1e8:.2f}億), Units: {units:,}")
+        return aum_ntd, units
+    except Exception as e:
+        log.warning(f"AUM parse from XLSX failed: {e}")
+        return 0, 0
+
+
 def get_previous_holdings(exclude_date_str):
     """Find the most recent holdings JSON excluding the given date."""
     pattern = os.path.join(HOLDINGS_DIR, f"{ETF_CODE}_holdings_*.json")
@@ -178,7 +198,7 @@ def get_price(code):
     return 0.0
 
 
-def generate_data_json(today_holdings, prev_holdings, data_date_str):
+def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, units=0):
     prev_dict = {h["code"]: h for h in prev_holdings}
     final_output = []
     total = len(today_holdings)
@@ -249,17 +269,10 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         log.warning(f"Failed to fetch ETF price/YTD: {e}")
 
 
-    # Fetch ETF total assets (AUM) to derive 總股數 & 市值
-    total_shares_raw, prev_total_shares, prev_total_market_cap = 0, 0, 0.0
-    total_market_cap = 0.0
-    try:
-        _info = yf.Ticker(f"{ETF_CODE}.TW").info
-        _assets = float(_info.get("totalAssets") or 0)
-        if _assets > 0 and etf_price > 0:
-            total_shares_raw = round(_assets / etf_price)
-            total_market_cap = round(_assets / 1e8, 2)
-    except Exception:
-        pass
+    # AUM from official capitalfund XLSX Sheet 0; fallback to previous values if unavailable
+    total_market_cap = round(aum_ntd / 1e8, 2) if aum_ntd > 0 else 0.0
+    total_shares_raw = units if units > 0 else (round(aum_ntd / etf_price) if aum_ntd > 0 and etf_price > 0 else 0)
+    prev_total_shares, prev_total_market_cap = 0, 0.0
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as _f:
@@ -269,7 +282,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str):
         except Exception:
             pass
     total_shares_zhang = total_shares_raw // 1000
-    # Fallback: if yfinance totalAssets unavailable, keep previous values
+    # Fallback: if official source unavailable, keep previous values
     if total_shares_zhang == 0 and prev_total_shares > 0:
         total_shares_zhang = prev_total_shares
         total_market_cap = round(etf_price * prev_total_shares * 1000 / 1e8, 2) if etf_price > 0 else prev_total_market_cap
@@ -426,6 +439,7 @@ def main():
         return
 
     today_holdings = parse_holdings_from_xlsx(xlsx_path)
+    aum_ntd, units = parse_aum_from_xlsx(xlsx_path)
     if not today_holdings:
         log.error("No holdings parsed from Excel. Will retry next hour.")
         send_telegram(f"⏳ 00992A 群益科技創新 持股尚未更新\n📅 資料日期：{data_date_str}\n🔄 將於下一個小時再次檢查...")
@@ -442,7 +456,7 @@ def main():
         json.dump(today_holdings, f, ensure_ascii=False, indent=2)
 
     prev_holdings = get_previous_holdings(exclude_date_str=data_date_str)
-    wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str)
+    wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=aum_ntd, units=units)
 
     git_push()
 
