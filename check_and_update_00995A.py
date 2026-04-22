@@ -74,6 +74,25 @@ def get_ctbc_token():
     return token
 
 
+def fetch_manager(token):
+    """Fetch fund manager name from CTBC ETFDetail API."""
+    try:
+        encoded_token = urllib.parse.quote(token, safe="")
+        resp = _post(
+            f"{CTBC_BASE}/etf/ETFDetail?token={encoded_token}",
+            {"token": token, "CNO": "00653201"}
+        )
+        details = resp.get("Data", {}).get("FundDetail", [])
+        if details:
+            manager = details[0].get("Manager", "")
+            if manager:
+                log.info(f"Manager from API: {manager}")
+                return manager
+    except Exception as e:
+        log.warning(f"Failed to fetch manager: {e}")
+    return None
+
+
 def fetch_holdings_for_date(token, date_str):
     """Fetch holdings data for a given date (format: YYYY/MM/DD)."""
     encoded_token = urllib.parse.quote(token, safe="")
@@ -184,7 +203,7 @@ def get_price(code):
     return 0.0
 
 
-def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd, units_zhang):
+def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd, units_zhang, manager=None):
     prev_dict = {h["code"]: h for h in prev_holdings}
     final_output = []
     total = len(today_holdings)
@@ -260,7 +279,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd, un
 
     wrapper = {
         "meta": {
-            "manager": MANAGER, "ytd": ytd_val, "etfPrice": etf_price,
+            "manager": manager or MANAGER, "ytd": ytd_val, "etfPrice": etf_price,
             "dataDate": data_date_str,
             "lastUpdate": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"),
             "totalShares": total_shares_zhang,
@@ -352,6 +371,7 @@ def main():
     log.info(f"=== {ETF_CODE} Check & Update started ===")
 
     token = get_ctbc_token()
+    manager = fetch_manager(token)
 
     # Fetch today's data
     today_tw = datetime.now(timezone(timedelta(hours=8)))
@@ -400,7 +420,7 @@ def main():
     log.info(f"Saved holdings snapshot: {json_path}")
 
     prev_holdings = get_previous_holdings(exclude_date_str=data_date_str)
-    wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd, units_zhang)
+    wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd, units_zhang, manager=manager)
 
     git_push()
     send_telegram(build_notification(wrapper))

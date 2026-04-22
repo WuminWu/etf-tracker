@@ -53,16 +53,26 @@ if not os.path.exists(HOLDINGS_DIR):
 # --------------- Allianz API Fetcher ---------------
 
 def fetch_fund_assets():
-    """Navigate to Allianz ETF page and intercept GetFundAssets API response."""
+    """Navigate to Allianz ETF page and intercept GetFundAssets + GetFundDetail API responses."""
     captured = {}
 
     def handle_response(response):
-        if API_KEYWORD in response.url:
+        url = response.url
+        if API_KEYWORD in url:
             try:
                 captured["data"] = response.json()
-                log.info(f"Captured API response from: {response.url}")
+                log.info(f"Captured holdings API: {url}")
             except Exception as e:
-                log.warning(f"Failed to parse API response: {e}")
+                log.warning(f"Failed to parse holdings response: {e}")
+        elif "GetFundDetail" in url:
+            try:
+                body = response.json()
+                manager = body.get("Entries", {}).get("CManager", "")
+                if manager:
+                    captured["manager"] = manager
+                    log.info(f"Captured manager: {manager}")
+            except Exception as e:
+                log.warning(f"Failed to parse GetFundDetail response: {e}")
 
     log.info(f"Launching Playwright to fetch {PAGE_URL} ...")
     with sync_playwright() as p:
@@ -74,13 +84,17 @@ def fetch_fund_assets():
         page = context.new_page()
         page.on("response", handle_response)
         try:
+            # Navigate to tab=1 first to trigger GetFundDetail (manager info)
+            page.goto(PAGE_URL.replace("tab=4", "tab=1"), wait_until="domcontentloaded", timeout=40000)
+            page.wait_for_timeout(4000)
+            # Then navigate to tab=4 for holdings
             page.goto(PAGE_URL, wait_until="domcontentloaded", timeout=40000)
             page.wait_for_timeout(8000)
         except Exception as e:
             log.warning(f"Page load issue (non-fatal): {e}")
         browser.close()
 
-    return captured.get("data")
+    return captured.get("data"), captured.get("manager")
 
 
 def parse_fund_assets(raw_data):
@@ -188,7 +202,7 @@ def get_price(code):
 
 
 def generate_data_json(today_holdings, prev_holdings, data_date_str,
-                       aum_ntd, units_zhang):
+                       aum_ntd, units_zhang, manager=None):
     prev_dict = {h["code"]: h for h in prev_holdings}
     final_output = []
     total = len(today_holdings)
@@ -275,7 +289,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str,
 
     wrapper = {
         "meta": {
-            "manager": MANAGER, "ytd": ytd_val, "etfPrice": etf_price,
+            "manager": manager or MANAGER, "ytd": ytd_val, "etfPrice": etf_price,
             "dataDate": data_date_str,
             "lastUpdate": datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M"),
             "totalShares": total_shares_zhang,
@@ -366,11 +380,13 @@ def git_push():
 def main():
     log.info(f"=== {ETF_CODE} Check & Update started ===")
 
-    raw_data = fetch_fund_assets()
+    raw_data, manager = fetch_fund_assets()
     if not raw_data:
         log.error("No data captured from Allianz API. Exiting.")
         send_telegram(f"⏳ {ETF_CODE} {ETF_NAME} 無法取得持股資料\n🔄 請檢查 Playwright 抓取是否正常")
         return
+    if manager:
+        log.info(f"Manager from API: {manager}")
 
     today_holdings, aum_ntd, units_zhang, nav, data_date_str = parse_fund_assets(raw_data)
 
@@ -395,7 +411,7 @@ def main():
 
     prev_holdings = get_previous_holdings(exclude_date_str=data_date_str)
     wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str,
-                                  aum_ntd, units_zhang)
+                                  aum_ntd, units_zhang, manager=manager)
 
     git_push()
     send_telegram(build_notification(wrapper))
