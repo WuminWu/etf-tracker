@@ -38,10 +38,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Holdings tab ───────────────────────────────────────────
     const tbody       = document.getElementById('holdings-body');
     const updateBadge = document.getElementById('update-date');
-    const thDiffAmount = document.getElementById('th-diff-amount');
+    const thDiffAmount  = document.getElementById('th-diff-amount');
+    const thStatus      = document.getElementById('th-status');
+    const thDiffShares  = document.getElementById('th-diff-shares');
 
-    let diffSortState = 0;
-    let globalData = [];
+    // sortMode: 'weight' | 'amount' | 'shares' | 'status'
+    let sortMode      = 'weight';
+    let diffAmountDir = 1;   // 1=desc, -1=asc
+    let diffSharesDir = 1;   // 1=desc, -1=asc
+    // status sort cycles: 0=default, 1=positive first (新增→加碼→持平→減碼→出清), -1=negative first
+    let statusDir     = 1;
+    let globalData    = [];
+
+    // status rank: higher = shown first in positive-first order
+    const statusRank = (h) => {
+        const prev = h.prevShares ?? 0, curr = h.shares;
+        if (prev === 0 && curr > 0) return 4;  // 新增
+        if (curr > prev && prev > 0) return 3; // 加碼
+        if (curr === prev)           return 2; // 持平
+        if (curr < prev && curr > 0) return 1; // 減碼
+        if (curr === 0 && prev > 0)  return 0; // 出清
+        return 2;
+    };
 
     // badge hidden
 
@@ -101,29 +119,66 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const resetHeaderIcons = () => {
+        thDiffAmount.innerHTML  = '<i class="fa-solid fa-sack-dollar"></i> 加/減碼金額 <i class="fa-solid fa-sort" style="opacity:0.3"></i>';
+        thStatus.innerHTML      = '<i class="fa-solid fa-tag"></i> 狀態 <i class="fa-solid fa-sort" style="opacity:0.3"></i>';
+        thDiffShares.innerHTML  = '<i class="fa-solid fa-arrow-trend-up"></i> 加/減碼股數 <i class="fa-solid fa-sort" style="opacity:0.3"></i>';
+    };
+
     const applySortAndRender = () => {
         let sorted = [...globalData];
-        if (diffSortState === 1) {
-            sorted.sort((a, b) => b.diffAmount - a.diffAmount);
-            thDiffAmount.innerHTML = '<i class="fa-solid fa-sack-dollar"></i> 加/減碼金額 <i class="fa-solid fa-sort-down"></i>';
-        } else if (diffSortState === -1) {
-            sorted.sort((a, b) => a.diffAmount - b.diffAmount);
-            thDiffAmount.innerHTML = '<i class="fa-solid fa-sack-dollar"></i> 加/減碼金額 <i class="fa-solid fa-sort-up"></i>';
+        resetHeaderIcons();
+
+        if (sortMode === 'amount') {
+            sorted.sort((a, b) => diffAmountDir === 1 ? b.diffAmount - a.diffAmount : a.diffAmount - b.diffAmount);
+            thDiffAmount.innerHTML = `<i class="fa-solid fa-sack-dollar"></i> 加/減碼金額 <i class="fa-solid fa-sort-${diffAmountDir === 1 ? 'down' : 'up'}"></i>`;
+        } else if (sortMode === 'shares') {
+            sorted.sort((a, b) => diffSharesDir === 1 ? b.diffShares - a.diffShares : a.diffShares - b.diffShares);
+            thDiffShares.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> 加/減碼股數 <i class="fa-solid fa-sort-${diffSharesDir === 1 ? 'down' : 'up'}"></i>`;
+        } else if (sortMode === 'status') {
+            sorted.sort((a, b) => statusDir === 1 ? statusRank(b) - statusRank(a) : statusRank(a) - statusRank(b));
+            thStatus.innerHTML = `<i class="fa-solid fa-tag"></i> 狀態 <i class="fa-solid fa-sort-${statusDir === 1 ? 'down' : 'up'}"></i>`;
         } else {
             sorted.sort((a, b) => b.todayWeight - a.todayWeight);
-            thDiffAmount.innerHTML = '<i class="fa-solid fa-sack-dollar"></i> 加/減碼金額 <i class="fa-solid fa-sort" style="opacity:0.3"></i>';
         }
         renderTable(sorted);
     };
 
     thDiffAmount.addEventListener('click', () => {
-        diffSortState = diffSortState === 0 ? 1 : diffSortState === 1 ? -1 : 0;
+        if (sortMode === 'amount') {
+            if (diffAmountDir === 1) { diffAmountDir = -1; }
+            else { sortMode = 'weight'; diffAmountDir = 1; }
+        } else {
+            sortMode = 'amount'; diffAmountDir = 1;
+        }
+        applySortAndRender();
+    });
+
+    thDiffShares.addEventListener('click', () => {
+        if (sortMode === 'shares') {
+            if (diffSharesDir === 1) { diffSharesDir = -1; }
+            else { sortMode = 'weight'; diffSharesDir = 1; }
+        } else {
+            sortMode = 'shares'; diffSharesDir = 1;
+        }
+        applySortAndRender();
+    });
+
+    thStatus.addEventListener('click', () => {
+        if (sortMode === 'status') {
+            if (statusDir === 1) { statusDir = -1; }
+            else { sortMode = 'weight'; statusDir = 1; }
+        } else {
+            sortMode = 'status'; statusDir = 1;
+        }
         applySortAndRender();
     });
 
     const etfSelector = document.getElementById('etf-selector');
 
     const loadData = (etfId) => {
+        sortMode = 'weight';
+        resetHeaderIcons();
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;">載入中，請稍候...</td></tr>';
         fetch(`data_${etfId}.json`)
             .then(r => { if (!r.ok) throw new Error('無資料檔'); return r.json(); })
