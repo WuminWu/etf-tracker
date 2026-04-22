@@ -216,7 +216,7 @@ table {
 
 th, td {
     padding: 1.2rem 1rem;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid var(--glass-border);
 }
 
@@ -229,7 +229,7 @@ th {
 }
 
 .align-right {
-    text-align: right;
+    text-align: center;
 }
 
 tbody tr {
@@ -253,7 +253,7 @@ tbody tr:last-child td {
 
 .stock-weight {
     font-weight: 700;
-    text-align: right;
+    text-align: center;
     font-variant-numeric: tabular-nums;
 }
 
