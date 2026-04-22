@@ -29,14 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 tabCross.style.display = '';
                 tabSearch.style.display = 'none';
                 appHeader.style.display = 'none';
-                if (ytdRankingBar) ytdRankingBar.style.display = 'none';
+                if (ytdRankingBar) ytdRankingBar.style.display = '';
                 loadCrossData();
             } else if (activeTab === 'search') {
                 tabHoldings.style.display = 'none';
                 tabCross.style.display = 'none';
                 tabSearch.style.display = '';
                 appHeader.style.display = 'none';
-                if (ytdRankingBar) ytdRankingBar.style.display = 'none';
+                if (ytdRankingBar) ytdRankingBar.style.display = '';
                 loadCrossData();
             }
         });
