@@ -18,18 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             activeTab = btn.dataset.tab;
 
+            const elScale = document.getElementById('etf-scale-info');
             if (activeTab === 'holdings') {
                 tabHoldings.style.display = '';
                 tabCross.style.display = 'none';
                 etfSelectWrapper.style.display = '';
                 etfSwitchHint.style.display = '';
                 headerSubtitle.style.display = '';
+                if (elScale) elScale.style.display = '';
             } else {
                 tabHoldings.style.display = 'none';
                 tabCross.style.display = '';
                 etfSelectWrapper.style.display = 'none';
                 etfSwitchHint.style.display = 'none';
                 headerSubtitle.style.display = 'none';
+                if (elScale) elScale.style.display = 'none';
                 loadCrossData();
             }
         });
