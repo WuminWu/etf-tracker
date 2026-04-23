@@ -248,6 +248,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const managerCardImg = document.getElementById('manager-card-img');
                 if (managerCardImg) {
                     managerCardImg.style.display = etfId === '00981A' ? 'inline-block' : 'none';
+                    // 點擊放大 lightbox（只綁定一次）
+                    if (!managerCardImg._lightboxBound) {
+                        managerCardImg._lightboxBound = true;
+                        managerCardImg.addEventListener('click', () => {
+                            const overlay = document.getElementById('lightbox-overlay');
+                            if (overlay) overlay.style.display = 'flex';
+                        });
+                    }
+                }
+                // ESC 關閉 lightbox（只綁定一次）
+                if (!window._lightboxEscBound) {
+                    window._lightboxEscBound = true;
+                    document.addEventListener('keydown', e => {
+                        if (e.key === 'Escape') {
+                            const overlay = document.getElementById('lightbox-overlay');
+                            if (overlay) overlay.style.display = 'none';
+                        }
+                    });
                 }
 
                 applySortAndRender();
