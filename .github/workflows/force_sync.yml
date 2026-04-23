@@ -1,4 +1,4 @@
-name: Force Sync 4/22 to Sheets
+name: Force Sync Holdings to Sheets
 
 on:
   workflow_dispatch:
@@ -19,4 +19,4 @@ jobs:
       - name: Run Force Sync Script
         env:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
-        run: python force_sync_to_sheets.py
+        run: python force_sync_to_sheets.py --dedup

@@ -458,7 +458,7 @@ def main():
 
     prev_holdings = get_previous_holdings(exclude_date_str=data_date_str)
     wrapper = generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=aum_ntd, units=units)
-    append_holdings_to_sheets(ETF_CODE, wrapper["meta"]["dataDate"], wrapper["holdings"])
+    append_holdings_to_sheets(ETF_CODE, wrapper["meta"]["dataDate"], wrapper["holdings"], meta=wrapper["meta"])
 
     msg = build_notification(wrapper, etf_code="00982A", etf_name="群益台灣強棒")
     send_telegram(msg)

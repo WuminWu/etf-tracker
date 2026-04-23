@@ -497,7 +497,7 @@ def main():
     # 4. Load previous day's holdings and generate diff
     prev_holdings = get_previous_holdings()
     wrapper = generate_data_json(today_holdings, prev_holdings, file_date.strftime("%Y-%m-%d"), aum_ntd=aum_ntd, units=units)
-    append_holdings_to_sheets("00981A", wrapper["meta"]["dataDate"], wrapper["holdings"])
+    append_holdings_to_sheets("00981A", wrapper["meta"]["dataDate"], wrapper["holdings"], meta=wrapper["meta"])
 
     # 5. Send Telegram notification (git push handled by GitHub Actions workflow)
     msg = build_notification(wrapper, etf_code="00981A", etf_name="統一台股增長")
