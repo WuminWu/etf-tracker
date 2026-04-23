@@ -499,10 +499,7 @@ def main():
     wrapper = generate_data_json(today_holdings, prev_holdings, file_date.strftime("%Y-%m-%d"), aum_ntd=aum_ntd, units=units)
     append_holdings_to_sheets("00981A", wrapper["meta"]["dataDate"], wrapper["holdings"])
 
-    # 5. Push to GitHub
-    git_push()
-
-    # 6. Send Telegram notification
+    # 5. Send Telegram notification (git push handled by GitHub Actions workflow)
     msg = build_notification(wrapper, etf_code="00981A", etf_name="統一台股增長")
     send_telegram(msg)
 

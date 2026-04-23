@@ -415,7 +415,6 @@ def main():
                                   aum_ntd, units_zhang, manager=manager)
     append_holdings_to_sheets(ETF_CODE, wrapper["meta"]["dataDate"], wrapper["holdings"])
 
-    git_push()
     send_telegram(build_notification(wrapper))
     log.info("=== Done! ===")
 
