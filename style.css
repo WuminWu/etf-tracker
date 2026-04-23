@@ -72,10 +72,32 @@ body {
     box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 
+.etf-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.15rem;
+}
+
+#manager-card-img {
+    height: 78px;
+    width: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    object-position: top;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    cursor: default;
+    flex-shrink: 0;
+}
+
+#manager-card-img:hover {
+    transform: scale(1.06);
+}
+
 .etf-select-wrapper {
     position: relative;
     display: inline-block;
-    margin-bottom: 0.15rem;
 }
 
 .etf-select-arrow {
@@ -619,6 +641,14 @@ tbody tr:last-child td {
     
     .header-titles {
         width: 100%;
+    }
+
+    .etf-name-row {
+        justify-content: center;
+    }
+
+    #manager-card-img {
+        height: 60px;
     }
 
     /* Card Table Layout */

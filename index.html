@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
@@ -24,20 +24,23 @@
                 <i class="fa-solid fa-chart-pie"></i>
             </div>
             <div class="header-titles">
-                <div class="etf-select-wrapper" id="etf-select-wrapper">
-                    <i class="fa-solid fa-caret-down etf-select-arrow"></i>
-                    <select id="etf-selector" class="etf-select">
-                        <option value="00981A">00981A 主動統一台股增長</option>
-                        <option value="00988A">00988A 主動統一全球創新</option>
-                        <option value="00980A">00980A 野村臺灣智慧優選</option>
-                        <option value="00985A">00985A 主動野村台灣50</option>
-                        <option value="00991A">00991A 主動復華未來50</option>
-                        <option value="00992A">00992A 主動群益科技創新ETF</option>
-                        <option value="00982A">00982A 主動群益台灣強棒</option>
-                        <option value="00987A">00987A 台新台灣優勢成長</option>
-                        <option value="00993A">00993A 主動安聯台灣</option>
-                        <option value="00995A">00995A 主動中信台灣卓越</option>
-                    </select>
+                <div class="etf-name-row">
+                    <div class="etf-select-wrapper" id="etf-select-wrapper">
+                        <i class="fa-solid fa-caret-down etf-select-arrow"></i>
+                        <select id="etf-selector" class="etf-select">
+                            <option value="00981A">00981A 主動統一台股增長</option>
+                            <option value="00988A">00988A 主動統一全球創新</option>
+                            <option value="00980A">00980A 野村臺灣智慧優選</option>
+                            <option value="00985A">00985A 主動野村台灣50</option>
+                            <option value="00991A">00991A 主動復華未來50</option>
+                            <option value="00992A">00992A 主動群益科技創新ETF</option>
+                            <option value="00982A">00982A 主動群益台灣強棒</option>
+                            <option value="00987A">00987A 台新台灣優勢成長</option>
+                            <option value="00993A">00993A 主動安聯台灣</option>
+                            <option value="00995A">00995A 主動中信台灣卓越</option>
+                        </select>
+                    </div>
+                    <img id="manager-card-img" src="manager_00981A.jpg" alt="00981A 經理人卡" style="display:none;">
                 </div>
                 <p class="etf-switch-hint" id="etf-switch-hint"><i class="fa-solid fa-repeat"></i> 點擊上方名稱可切換 ETF 標的</p>
                 <p id="header-subtitle"><i class="fa-solid fa-spinner fa-spin"></i> 載入經理人與績效資訊中...</p>

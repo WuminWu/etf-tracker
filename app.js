@@ -244,6 +244,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (elScale) {
                     elScale.style.display = 'none';
                 }
+                // 00981A 專屬經理人卡片圖
+                const managerCardImg = document.getElementById('manager-card-img');
+                if (managerCardImg) {
+                    managerCardImg.style.display = etfId === '00981A' ? 'inline-block' : 'none';
+                }
+
                 applySortAndRender();
             })
             .catch(err => {
