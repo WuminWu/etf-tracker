@@ -12,6 +12,7 @@ import yfinance as yf
 
 ETFS = [
     ("00981A", "data_00981A.json"),
+    ("00988A", "data_00988A.json"),
     ("00980A", "data_00980A.json"),
     ("00985A", "data_00985A.json"),
     ("00991A", "data_00991A.json"),

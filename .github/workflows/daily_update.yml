@@ -42,6 +42,7 @@ jobs:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
         run: |
           python check_and_update_00981A.py
+          python check_and_update_00988A.py
           python check_and_update_00980A.py
           python check_and_update_00985A.py
           python check_and_update_00991A.py

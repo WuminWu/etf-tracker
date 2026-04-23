@@ -263,6 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── YTD Ranking ────────────────────────────────────────────
     const ALL_ETFS = [
         { id: '00981A', name: '統一台股增長' },
+        { id: '00988A', name: '統一全球創新' },
         { id: '00980A', name: '野村智慧優選' },
         { id: '00985A', name: '野村台灣50' },
         { id: '00991A', name: '復華未來50' },
@@ -337,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Cross-compare tab ──────────────────────────────────────
     const ETF_LIST = [
         { id: '00981A', name: '統一台股增長' },
+        { id: '00988A', name: '統一全球創新' },
         { id: '00980A', name: '野村智慧優選' },
         { id: '00985A', name: '野村台灣50' },
         { id: '00991A', name: '復華未來50' },
