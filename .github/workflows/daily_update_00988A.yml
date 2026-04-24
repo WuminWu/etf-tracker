@@ -2,10 +2,9 @@ name: Daily ETF Holdings Update - 00988A (全球，含美股)
 
 on:
   schedule:
-    # 台灣時間 06:00–07:30（週二至週六），對應 UTC 前一天 22:00–23:30（Mon–Fri）
-    - cron: '0,30 22-23 * * 1-5'
-    # 台灣時間 08:00–10:30（週二至週六），對應 UTC 00:00–02:30（Tue–Sat）
-    - cron: '0,30 0-2 * * 2-6'
+    # 台灣時間 12:00–16:30（週二至週六），對應 UTC 04:00–08:30（Tue–Sat）
+    # 每 30 分鐘一次，共 10 次，直到持股更新完成為止
+    - cron: '0,30 4-8 * * 2-6'
   workflow_dispatch:
 
 permissions:
@@ -33,7 +32,7 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
 
-      - name: Run 00988A update script (等美股收盤後執行)
+      - name: Run 00988A update script (台灣時間中午12點起，每30分鐘檢查)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
