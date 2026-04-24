@@ -184,13 +184,27 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, 
     # AUM from official Nomura API; fallback to previous values if unavailable
     total_market_cap = round(aum_ntd / 1e8, 2) if aum_ntd > 0 else 0.0
     total_shares_raw = units if units > 0 else (round(aum_ntd / etf_price) if aum_ntd > 0 and etf_price > 0 else 0)
+    # prevTotalShares：只在前一個交易日才做比較，避免腳本跳日造成跨多天誤差
     prev_total_shares, prev_total_market_cap = 0, 0.0
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as _f:
                 _prev = json.load(_f)
-            prev_total_shares = _prev.get("meta", {}).get("totalShares", 0)
-            prev_total_market_cap = _prev.get("meta", {}).get("totalMarketCap", 0.0)
+            prev_meta = _prev.get("meta", {})
+            # 計算前一個交易日（跳過週末）
+            _d = datetime.strptime(data_date_str, "%Y-%m-%d").date()
+            _delta = 1
+            while True:
+                _candidate = _d - timedelta(days=_delta)
+                if _candidate.weekday() < 5:
+                    _prev_trading_day = _candidate.strftime("%Y-%m-%d")
+                    break
+                _delta += 1
+            if prev_meta.get("dataDate", "") == _prev_trading_day:
+                prev_total_shares = prev_meta.get("totalShares", 0)
+                prev_total_market_cap = prev_meta.get("totalMarketCap", 0.0)
+            else:
+                log.info(f"AUM 比較跳過：JSON dataDate={prev_meta.get('dataDate')} 非前一交易日({_prev_trading_day})")
         except Exception:
             pass
     total_shares_zhang = total_shares_raw // 1000

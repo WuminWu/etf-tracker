@@ -278,13 +278,27 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str,
             pass
 
     # Load previous totalShares/totalMarketCap
+    # prevTotalShares：只在前一個交易日才做比較，避免腳本跳日造成跨多天誤差
     prev_total_shares, prev_total_market_cap = 0, 0.0
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, "r", encoding="utf-8") as _f:
                 _prev = json.load(_f)
-            prev_total_shares = _prev.get("meta", {}).get("totalShares", 0)
-            prev_total_market_cap = _prev.get("meta", {}).get("totalMarketCap", 0.0)
+            prev_meta = _prev.get("meta", {})
+            # 計算前一個交易日（跳過週末）
+            _d = datetime.strptime(data_date_str, "%Y-%m-%d").date()
+            _delta = 1
+            while True:
+                _candidate = _d - timedelta(days=_delta)
+                if _candidate.weekday() < 5:
+                    _prev_trading_day = _candidate.strftime("%Y-%m-%d")
+                    break
+                _delta += 1
+            if prev_meta.get("dataDate", "") == _prev_trading_day:
+                prev_total_shares = prev_meta.get("totalShares", 0)
+                prev_total_market_cap = prev_meta.get("totalMarketCap", 0.0)
+            else:
+                log.info(f"AUM 比較跳過：JSON dataDate={prev_meta.get('dataDate')} 非前一交易日({_prev_trading_day})")
         except Exception:
             pass
 
