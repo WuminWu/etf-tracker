@@ -204,8 +204,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const priceDateStr = meta.priceDate
                         ? `<span style="color:#6b7280;font-size:0.82em;margin-left:0.3em;">(${meta.priceDate})</span>`
                         : '';
+                    let priceChangeStr = '';
+                    if (meta.priceChange != null && meta.priceChange !== 0) {
+                        const pc = meta.priceChange;
+                        const pcSign = pc >= 0 ? '+' : '';
+                        const pcColor = pc >= 0 ? '#ff4d4d' : '#4ade80';
+                        priceChangeStr = ` <span style="color:${pcColor};font-weight:600;font-size:0.92em;">(${pcSign}${pc.toFixed(2)}%)</span>`;
+                    }
                     const priceStr = meta.etfPrice
-                        ? ` &nbsp;|&nbsp; <i class="fa-solid fa-dollar-sign"></i> 股價：<span style="color:#60a5fa;font-weight:bold;">${Number(meta.etfPrice).toFixed(2)}</span>${priceDateStr}`
+                        ? ` &nbsp;|&nbsp; <i class="fa-solid fa-dollar-sign"></i> 股價：<span style="color:#60a5fa;font-weight:bold;">${Number(meta.etfPrice).toFixed(2)}</span>${priceChangeStr}${priceDateStr}`
                         : '';
                     elSubtitle.innerHTML = `<i class="fa-solid fa-user-tie"></i> 經理人：${meta.manager}${priceStr} &nbsp;|&nbsp; <i class="fa-solid fa-chart-line"></i> 今年以來(YTD)績效：<span style="color:${meta.ytd >= 0 ? '#ff4d4d' : '#4ade80'};font-weight:bold;">${meta.ytd > 0 ? '+' : ''}${meta.ytd}%</span>`;
                 }
