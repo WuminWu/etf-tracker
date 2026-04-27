@@ -476,19 +476,19 @@ def main():
 
     if xlsx_path is None:
         log.error("Download failed. Will retry next hour.")
-        send_telegram(f"⏳ 00981A 統一台股增長 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於下一個小時再次檢查...")
+        send_telegram(f"⏳ 00981A 統一台股增長 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於 30 分鐘後再次檢查...")
         return
 
     if file_date is None:
         log.error("Could not parse date from file. Will retry next hour.")
-        send_telegram(f"⏳ 00981A 統一台股增長 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於下一個小時再次檢查...")
+        send_telegram(f"⏳ 00981A 統一台股增長 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於 30 分鐘後再次檢查...")
         return
 
     if file_date != today:
         log.info(f"File date ({file_date}) != today ({today}). Not yet updated. Will retry next hour.")
         if os.path.exists(xlsx_path):
             os.remove(xlsx_path)
-        send_telegram(f"⏳ 00981A 統一台股增長 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於下一個小時再次檢查...")
+        send_telegram(f"⏳ 00981A 統一台股增長 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於 30 分鐘後再次檢查...")
         return
 
     # 3. Date matches today! Save and process

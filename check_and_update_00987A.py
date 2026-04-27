@@ -381,7 +381,7 @@ def main():
     aum_ntd, units = fetch_aum_from_html()
     if not today_holdings:
         log.error("No holdings fetched. Will retry next hour.")
-        send_telegram(f"⏳ 00987A 台新台灣優勢成長 持股尚未更新\n📅 資料日期：{data_date_str}\n🔄 將於下一個小時再次檢查...")
+        send_telegram(f"⏳ 00987A 台新台灣優勢成長 持股尚未更新\n📅 資料日期：{data_date_str}\n🔄 將於 30 分鐘後再次檢查...")
         return
 
     json_path = os.path.join(HOLDINGS_DIR, f"{ETF_CODE}_holdings_{data_date_str}.json")

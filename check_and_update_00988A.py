@@ -65,10 +65,21 @@ def minguo_to_date(minguo_str):
     return datetime(year, month, day).date()
 
 
-def today_holdings_exist():
-    """Check if we already have today's holdings file."""
-    today_str = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
-    filepath = os.path.join(HOLDINGS_DIR, f"00988A_holdings_{today_str}.json")
+def get_prev_trading_day():
+    """Return the previous trading day in Taiwan time (skip weekends)."""
+    tw_now = datetime.now(timezone(timedelta(hours=8))).date()
+    delta = 1
+    while True:
+        candidate = tw_now - timedelta(days=delta)
+        if candidate.weekday() < 5:  # Mon=0, Fri=4
+            return candidate
+        delta += 1
+
+
+def prev_holdings_exist():
+    """Check if we already have the previous trading day's holdings file."""
+    prev_str = get_prev_trading_day().strftime("%Y-%m-%d")
+    filepath = os.path.join(HOLDINGS_DIR, f"00988A_holdings_{prev_str}.json")
     return os.path.exists(filepath)
 
 
@@ -196,11 +207,11 @@ def get_previous_holdings():
     pattern = os.path.join(HOLDINGS_DIR, "00988A_holdings_*.json")
     files = sorted(glob.glob(pattern))
 
-    today_str = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
-    # Filter out today's file and temporary files
+    prev_str = get_prev_trading_day().strftime("%Y-%m-%d")
+    # Filter out prev trading day's file (the one we just saved) and temporary files
     prev_files = [
         f for f in files
-        if today_str not in os.path.basename(f) and "_temp" not in f
+        if prev_str not in os.path.basename(f) and "_temp" not in f
     ]
 
     if prev_files:
@@ -477,38 +488,40 @@ def git_push():
 def main():
     today = datetime.now(timezone(timedelta(hours=8))).date()
     today_str = today.strftime("%Y-%m-%d")
-    log.info(f"=== Check & Update started. Today: {today_str} ===")
+    prev_trading_day = get_prev_trading_day()
+    prev_str = prev_trading_day.strftime("%Y-%m-%d")
+    log.info(f"=== Check & Update started. Today: {today_str}, checking for: {prev_str} ===")
 
-    # 1. Skip if today already done
-    if today_holdings_exist():
-        log.info("Today's holdings already downloaded. Nothing to do.")
+    # 1. Skip if previous trading day already done
+    if prev_holdings_exist():
+        log.info(f"Holdings for {prev_str} already downloaded. Nothing to do.")
         return
 
     # 2. Download XLSX and check date
     xlsx_path, file_date = download_xlsx()
 
     if xlsx_path is None:
-        log.error("Download failed. Will retry next hour.")
-        send_telegram(f"⏳ 00988A 主動統一全球創新 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於下一個小時再次檢查...")
+        log.error("Download failed. Will retry.")
+        send_telegram(f"⏳ 00988A 主動統一全球創新 持股尚未更新\n📅 資料日期：{prev_str}\n🔄 將於 30 分鐘後再次檢查...")
         return
 
     if file_date is None:
-        log.error("Could not parse date from file. Will retry next hour.")
-        send_telegram(f"⏳ 00988A 主動統一全球創新 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於下一個小時再次檢查...")
+        log.error("Could not parse date from file. Will retry.")
+        send_telegram(f"⏳ 00988A 主動統一全球創新 持股尚未更新\n📅 資料日期：{prev_str}\n🔄 將於 30 分鐘後再次檢查...")
         return
 
-    if file_date != today:
-        log.info(f"File date ({file_date}) != today ({today}). Not yet updated. Will retry next hour.")
+    if file_date != prev_trading_day:
+        log.info(f"File date ({file_date}) != prev trading day ({prev_trading_day}). Not yet updated.")
         if os.path.exists(xlsx_path):
             os.remove(xlsx_path)
-        send_telegram(f"⏳ 00988A 持股尚未更新\n📅 資料日期：{today_str}\n🔄 將於下一個小時再次檢查...")
+        send_telegram(f"⏳ 00988A 持股尚未更新\n📅 資料日期：{prev_str}\n🔄 將於 30 分鐘後再次檢查...")
         return
 
-    # 3. Date matches today! Save and process
-    log.info(f"File date matches today! Processing...")
+    # 3. Date matches previous trading day! Save and process
+    log.info(f"File date matches previous trading day ({prev_str})! Processing...")
 
     # Save XLSX with proper name
-    final_xlsx = os.path.join(HOLDINGS_DIR, f"00988A_holdings_{today_str}.xlsx")
+    final_xlsx = os.path.join(HOLDINGS_DIR, f"00988A_holdings_{prev_str}.xlsx")
     os.rename(xlsx_path, final_xlsx)
 
     # Parse today's holdings
@@ -517,7 +530,7 @@ def main():
     aum_ntd, units = parse_aum_from_xlsx(final_xlsx)
 
     # Save as JSON
-    json_path = os.path.join(HOLDINGS_DIR, f"00988A_holdings_{today_str}.json")
+    json_path = os.path.join(HOLDINGS_DIR, f"00988A_holdings_{prev_str}.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(today_holdings, f, ensure_ascii=False, indent=2)
 
