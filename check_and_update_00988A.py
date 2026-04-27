@@ -459,12 +459,12 @@ def build_notification(wrapper, etf_code="00988A", etf_name="主動統一全球�
     if increased:
         lines.append("\n🔴 加碼明細：")
         for h in increased:
-            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}")
+            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}（{h['todayWeight']}%）")
 
     if decreased:
         lines.append("\n🟢 減碼明細：")
         for h in decreased:
-            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}")
+            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}（{h['todayWeight']}%）")
 
     lines.append(f"\n🕐 更新時間：{meta['lastUpdate']} (台灣時間)")
     lines.append("🔗 https://wuminwu.github.io/woody-etf-tracker/")
