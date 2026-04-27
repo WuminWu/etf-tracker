@@ -1,14 +1,15 @@
 {
     "meta": {
         "manager": "游景德",
-        "ytd": "43.23",
-        "etfPrice": 21.52,
+        "ytd": "44.43",
+        "etfPrice": 21.7,
         "dataDate": "2026-04-23",
         "lastUpdate": "2026-04-24 17:23",
-        "totalShares": 669230,
+        "totalShares": 529780,
         "prevTotalShares": 534211,
-        "totalMarketCap": 140.27,
-        "prevTotalMarketCap": 114.96
+        "totalMarketCap": 114.96,
+        "prevTotalMarketCap": 114.96,
+        "priceDate": "2026-04-27"
     },
     "holdings": [
         {

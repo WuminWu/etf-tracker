@@ -5,10 +5,11 @@
         "etfPrice": 15.94,
         "dataDate": "2026-04-23",
         "lastUpdate": "2026-04-24 17:25",
-        "totalShares": 12000,
+        "totalShares": 96597,
         "prevTotalShares": 96597,
-        "totalMarketCap": 28.81,
-        "prevTotalMarketCap": 15.4
+        "totalMarketCap": 15.4,
+        "prevTotalMarketCap": 15.4,
+        "priceDate": "2026-04-27"
     },
     "holdings": [
         {
