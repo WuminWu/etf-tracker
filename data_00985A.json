@@ -16,408 +16,442 @@
             "name": "台灣積體電路製造",
             "shares": 1372000,
             "prevShares": 1317000,
-            "price": 2265.0,
+            "price": 2230.0,
             "yestWeight": 27.57,
             "todayWeight": 29.18,
             "diffShares": 55000,
             "diffAmount": 124575000.0,
-            "rank": 1
+            "rank": 1,
+            "prevPrice": 2265.0
         },
         {
             "code": "7769",
             "name": "鴻勁精密",
             "shares": 105000,
             "prevShares": 105000,
-            "price": 4970.0,
+            "price": 5085.0,
             "yestWeight": 5.08,
             "todayWeight": 4.83,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 2
+            "rank": 2,
+            "prevPrice": 4970.0
         },
         {
             "code": "3653",
             "name": "健策精密工業",
             "shares": 85000,
             "prevShares": 85000,
-            "price": 4960.0,
+            "price": 4950.0,
             "yestWeight": 4.54,
             "todayWeight": 4.44,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 3
+            "rank": 3,
+            "prevPrice": 4960.0
         },
         {
             "code": "3017",
             "name": "奇鋐科技",
             "shares": 146000,
             "prevShares": 146000,
-            "price": 2835.0,
+            "price": 2780.0,
             "yestWeight": 3.94,
             "todayWeight": 4.19,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 4
+            "rank": 4,
+            "prevPrice": 2835.0
         },
         {
             "code": "2308",
             "name": "台達電子工業",
             "shares": 195000,
             "prevShares": 195000,
-            "price": 2020.0,
+            "price": 2110.0,
             "yestWeight": 3.89,
             "todayWeight": 3.94,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 5
+            "rank": 5,
+            "prevPrice": 2020.0
         },
         {
             "code": "3665",
             "name": "貿聯控股（BizLink Holding In",
             "shares": 127000,
             "prevShares": 127000,
-            "price": 2630.0,
+            "price": 2625.0,
             "yestWeight": 3.52,
             "todayWeight": 3.42,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 6
+            "rank": 6,
+            "prevPrice": 2630.0
         },
         {
             "code": "2368",
             "name": "金像電子（股）公司",
             "shares": 212000,
             "prevShares": 212000,
-            "price": 1420.0,
+            "price": 1390.0,
             "yestWeight": 2.7,
             "todayWeight": 2.87,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 7
+            "rank": 7,
+            "prevPrice": 1420.0
         },
         {
             "code": "2454",
             "name": "聯發科技",
             "shares": 118000,
             "prevShares": 118000,
-            "price": 2435.0,
+            "price": 2605.0,
             "yestWeight": 2.63,
             "todayWeight": 2.8,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 8
+            "rank": 8,
+            "prevPrice": 2435.0
         },
         {
             "code": "3711",
             "name": "日月光投資控股",
             "shares": 455000,
             "prevShares": 455000,
-            "price": 495.5,
+            "price": 497.0,
             "yestWeight": 2.13,
             "todayWeight": 2.2,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 9
+            "rank": 9,
+            "prevPrice": 495.5
         },
         {
             "code": "6415",
             "name": "矽力杰",
             "shares": 477000,
             "prevShares": 477000,
-            "price": 420.0,
+            "price": 400.0,
             "yestWeight": 1.99,
             "todayWeight": 2.02,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 10
+            "rank": 10,
+            "prevPrice": 420.0
         },
         {
             "code": "2360",
             "name": "致茂電子",
             "shares": 100000,
             "prevShares": 100000,
-            "price": 1925.0,
+            "price": 2065.0,
             "yestWeight": 1.95,
             "todayWeight": 1.87,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 11
+            "rank": 11,
+            "prevPrice": 1925.0
         },
         {
             "code": "2059",
             "name": "川湖科技",
             "shares": 48000,
             "prevShares": 48000,
-            "price": 3960.0,
+            "price": 4000.0,
             "yestWeight": 1.73,
             "todayWeight": 1.77,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 12
+            "rank": 12,
+            "prevPrice": 3960.0
         },
         {
             "code": "2345",
             "name": "智邦科技",
             "shares": 84000,
             "prevShares": 84000,
-            "price": 2175.0,
+            "price": 2310.0,
             "yestWeight": 1.76,
             "todayWeight": 1.75,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 13
+            "rank": 13,
+            "prevPrice": 2175.0
         },
         {
             "code": "6488",
             "name": "環球晶圓",
             "shares": 294000,
             "prevShares": 294000,
-            "price": 620.0,
+            "price": 580.0,
             "yestWeight": 1.69,
             "todayWeight": 1.67,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 14
+            "rank": 14,
+            "prevPrice": 620.0
         },
         {
             "code": "2383",
             "name": "台光電子材料",
             "shares": 37000,
             "prevShares": 37000,
-            "price": 4730.0,
+            "price": 4370.0,
             "yestWeight": 1.53,
             "todayWeight": 1.61,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 15
+            "rank": 15,
+            "prevPrice": 4730.0
         },
         {
             "code": "3661",
             "name": "世芯電子",
             "shares": 39000,
             "prevShares": 39000,
-            "price": 4160.0,
+            "price": 4005.0,
             "yestWeight": 1.56,
             "todayWeight": 1.6,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 16
+            "rank": 16,
+            "prevPrice": 4160.0
         },
         {
             "code": "8046",
             "name": "南亞電路板",
             "shares": 186000,
             "prevShares": 186000,
-            "price": 913.0,
+            "price": 930.0,
             "yestWeight": 1.49,
             "todayWeight": 1.58,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 17
+            "rank": 17,
+            "prevPrice": 913.0
         },
         {
             "code": "6805",
             "name": "富世達",
             "shares": 77000,
             "prevShares": 77000,
-            "price": 2070.0,
+            "price": 2085.0,
             "yestWeight": 1.48,
             "todayWeight": 1.44,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 18
+            "rank": 18,
+            "prevPrice": 2070.0
         },
         {
             "code": "6789",
             "name": "采鈺科技",
             "shares": 260000,
             "prevShares": 260000,
-            "price": 557.0,
+            "price": 560.0,
             "yestWeight": 1.35,
             "todayWeight": 1.43,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 19
+            "rank": 19,
+            "prevPrice": 557.0
         },
         {
             "code": "6223",
             "name": "旺矽科技",
             "shares": 30000,
             "prevShares": 30000,
-            "price": 4880.0,
+            "price": 4910.0,
             "yestWeight": 1.45,
             "todayWeight": 1.36,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 20
+            "rank": 20,
+            "prevPrice": 4880.0
         },
         {
             "code": "8299",
             "name": "群聯電子",
             "shares": 80000,
             "prevShares": 80000,
-            "price": 1835.0,
+            "price": 1960.0,
             "yestWeight": 1.37,
             "todayWeight": 1.31,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 21
+            "rank": 21,
+            "prevPrice": 1835.0
         },
         {
             "code": "6669",
             "name": "緯穎科技服務",
             "shares": 27000,
             "prevShares": 19000,
-            "price": 4890.0,
+            "price": 4830.0,
             "yestWeight": 0.81,
             "todayWeight": 1.22,
             "diffShares": 8000,
             "diffAmount": 39120000.0,
-            "rank": 22
+            "rank": 22,
+            "prevPrice": 4890.0
         },
         {
             "code": "3529",
             "name": "力旺電子",
             "shares": 31000,
             "prevShares": 31000,
-            "price": 4045.0,
+            "price": 3960.0,
             "yestWeight": 1.24,
             "todayWeight": 1.18,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 23
+            "rank": 23,
+            "prevPrice": 4045.0
         },
         {
             "code": "6442",
             "name": "光紅建聖",
             "shares": 64000,
             "prevShares": 64000,
-            "price": 1775.0,
+            "price": 1860.0,
             "yestWeight": 1.3,
             "todayWeight": 1.17,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 24
+            "rank": 24,
+            "prevPrice": 1775.0
         },
         {
             "code": "2344",
             "name": "華邦電子",
             "shares": 1336000,
             "prevShares": 1336000,
-            "price": 93.9,
+            "price": 95.8,
             "yestWeight": 1.18,
             "todayWeight": 1.15,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 25
+            "rank": 25,
+            "prevPrice": 93.9
         },
         {
             "code": "3189",
             "name": "景碩科技",
             "shares": 209000,
             "prevShares": 209000,
-            "price": 515.0,
+            "price": 506.0,
             "yestWeight": 1.01,
             "todayWeight": 1.07,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 26
+            "rank": 26,
+            "prevPrice": 515.0
         },
         {
             "code": "8996",
             "name": "高力熱處理工業",
             "shares": 96000,
             "prevShares": 96000,
-            "price": 1070.0,
+            "price": 1175.0,
             "yestWeight": 1.17,
             "todayWeight": 1.05,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 27
+            "rank": 27,
+            "prevPrice": 1070.0
         },
         {
             "code": "6515",
             "name": "穎崴科技",
             "shares": 10000,
             "prevShares": 10000,
-            "price": 9580.0,
+            "price": 10095.0,
             "yestWeight": 1.08,
             "todayWeight": 0.98,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 28
+            "rank": 28,
+            "prevPrice": 9580.0
         },
         {
             "code": "2474",
             "name": "可成科技",
             "shares": 427000,
             "prevShares": 427000,
-            "price": 225.0,
+            "price": 231.0,
             "yestWeight": 0.99,
             "todayWeight": 0.93,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 29
+            "rank": 29,
+            "prevPrice": 225.0
         },
         {
             "code": "1477",
             "name": "聚陽實業",
             "shares": 433000,
             "prevShares": 433000,
-            "price": 215.0,
+            "price": 217.0,
             "yestWeight": 0.96,
             "todayWeight": 0.91,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 30
+            "rank": 30,
+            "prevPrice": 215.0
         },
         {
             "code": "3533",
             "name": "嘉澤端子工業",
             "shares": 35000,
             "prevShares": 35000,
-            "price": 2710.0,
+            "price": 2645.0,
             "yestWeight": 0.87,
             "todayWeight": 0.86,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 31
+            "rank": 31,
+            "prevPrice": 2710.0
         },
         {
             "code": "4958",
             "name": "臻鼎科技控股",
             "shares": 236000,
             "prevShares": 77000,
-            "price": 358.5,
+            "price": 394.0,
             "yestWeight": 0.25,
             "todayWeight": 0.8,
             "diffShares": 159000,
             "diffAmount": 57001500.0,
-            "rank": 32
+            "rank": 32,
+            "prevPrice": 358.5
         },
         {
             "code": "3105",
             "name": "穩懋半導體",
             "shares": 140000,
             "prevShares": 140000,
-            "price": 492.5,
+            "price": 502.0,
             "yestWeight": 0.79,
             "todayWeight": 0.75,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 33
+            "rank": 33,
+            "prevPrice": 492.5
         },
         {
             "code": "6781",
             "name": "AES Holding Co Ltd",
             "shares": 69000,
             "prevShares": 69000,
-            "price": 1225.0,
+            "price": 1205.0,
             "yestWeight": 0.77,
             "todayWeight": 0.75,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 34
+            "rank": 34,
+            "prevPrice": 1225.0
         },
         {
             "code": "2412",
@@ -429,187 +463,203 @@
             "todayWeight": 0.74,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 35
+            "rank": 35,
+            "prevPrice": 137.0
         },
         {
             "code": "4749",
             "name": "新應材",
             "shares": 57000,
             "prevShares": 57000,
-            "price": 966.0,
+            "price": 994.0,
             "yestWeight": 0.57,
             "todayWeight": 0.54,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 36
+            "rank": 36,
+            "prevPrice": 966.0
         },
         {
             "code": "2408",
             "name": "南亞科技",
             "shares": 221000,
             "prevShares": 221000,
-            "price": 226.5,
+            "price": 238.5,
             "yestWeight": 0.46,
             "todayWeight": 0.44,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 37
+            "rank": 37,
+            "prevPrice": 226.5
         },
         {
             "code": "3037",
             "name": "欣興電子",
             "shares": 53000,
             "prevShares": 53000,
-            "price": 839.0,
+            "price": 825.0,
             "yestWeight": 0.39,
             "todayWeight": 0.41,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 38
+            "rank": 38,
+            "prevPrice": 839.0
         },
         {
             "code": "8210",
             "name": "勤誠興業",
             "shares": 32000,
             "prevShares": 32000,
-            "price": 1165.0,
+            "price": 1175.0,
             "yestWeight": 0.35,
             "todayWeight": 0.38,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 39
+            "rank": 39,
+            "prevPrice": 1165.0
         },
         {
             "code": "2395",
             "name": "研華",
             "shares": 104000,
             "prevShares": 104000,
-            "price": 363.0,
+            "price": 367.5,
             "yestWeight": 0.37,
             "todayWeight": 0.36,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 40
+            "rank": 40,
+            "prevPrice": 363.0
         },
         {
             "code": "1216",
             "name": "統一企業",
             "shares": 378000,
             "prevShares": 378000,
-            "price": 70.5,
+            "price": 70.6,
             "yestWeight": 0.27,
             "todayWeight": 0.26,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 41
+            "rank": 41,
+            "prevPrice": 70.5
         },
         {
             "code": "2317",
             "name": "鴻海精密工業",
             "shares": 117000,
             "prevShares": 117000,
-            "price": 228.0,
+            "price": 225.0,
             "yestWeight": 0.26,
             "todayWeight": 0.25,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 42
+            "rank": 42,
+            "prevPrice": 228.0
         },
         {
             "code": "3264",
             "name": "欣銓科技",
             "shares": 122000,
             "prevShares": 122000,
-            "price": 194.0,
+            "price": 197.5,
             "yestWeight": 0.24,
             "todayWeight": 0.25,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 43
+            "rank": 43,
+            "prevPrice": 194.0
         },
         {
             "code": "3293",
             "name": "鈊象電子",
             "shares": 34000,
             "prevShares": 34000,
-            "price": 748.0,
+            "price": 753.0,
             "yestWeight": 0.26,
             "todayWeight": 0.25,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 44
+            "rank": 44,
+            "prevPrice": 748.0
         },
         {
             "code": "2881",
             "name": "富邦金融控股",
             "shares": 278000,
             "prevShares": 278000,
-            "price": 87.9,
+            "price": 89.0,
             "yestWeight": 0.25,
             "todayWeight": 0.24,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 45
+            "rank": 45,
+            "prevPrice": 87.9
         },
         {
             "code": "6239",
             "name": "力成科技",
             "shares": 98000,
             "prevShares": 98000,
-            "price": 217.0,
+            "price": 218.5,
             "yestWeight": 0.2,
             "todayWeight": 0.2,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 46
+            "rank": 46,
+            "prevPrice": 217.0
         },
         {
             "code": "4904",
             "name": "遠傳電信",
             "shares": 186000,
             "prevShares": 186000,
-            "price": 96.0,
+            "price": 94.5,
             "yestWeight": 0.18,
             "todayWeight": 0.17,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 47
+            "rank": 47,
+            "prevPrice": 96.0
         },
         {
             "code": "1519",
             "name": "華城電機",
             "shares": 8000,
             "prevShares": 8000,
-            "price": 888.0,
+            "price": 879.0,
             "yestWeight": 0.07,
             "todayWeight": 0.07,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 48
+            "rank": 48,
+            "prevPrice": 888.0
         },
         {
             "code": "2891",
             "name": "中國信託金融控股",
             "shares": 89000,
             "prevShares": 89000,
-            "price": 52.7,
+            "price": 53.2,
             "yestWeight": 0.05,
             "todayWeight": 0.05,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 49
+            "rank": 49,
+            "prevPrice": 52.7
         },
         {
             "code": "2382",
             "name": "廣達電腦",
             "shares": 14000,
             "prevShares": 14000,
-            "price": 325.5,
+            "price": 319.0,
             "yestWeight": 0.05,
             "todayWeight": 0.04,
             "diffShares": 0,
             "diffAmount": 0.0,
-            "rank": 50
+            "rank": 50,
+            "prevPrice": 325.5
         }
     ]
 }

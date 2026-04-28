@@ -119,10 +119,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `<span style="color:#9ca3af;font-size:0.8em;">${formatNumber(prev)}</span> <span style="color:${color};">→</span> <span style="font-weight:600;">${formatNumber(curr)}</span>`;
             })();
 
+            const priceDisplay = (() => {
+                const prev = holding.prevPrice || 0;
+                const curr = holding.price;
+                if (!prev || prev === curr) return `$${formatNumber(curr, 2)}`;
+                const pct = (curr - prev) / prev * 100;
+                const pctSign = pct >= 0 ? '+' : '';
+                const color = pct >= 0 ? '#ff4d4d' : '#4ade80';
+                return `<span style="color:#9ca3af;font-size:0.8em;">${formatNumber(prev, 2)}</span> <span style="color:${color};">→</span> <span style="font-weight:600;">$${formatNumber(curr, 2)}</span> <span style="color:${color};font-size:0.8em;">(${pctSign}${pct.toFixed(2)}%)</span>`;
+            })();
+
             tr.innerHTML = `
                 <td data-label="序號"><span style="display:inline-block;width:30px;height:30px;line-height:30px;text-align:center;border-radius:50%;background:#334155;color:#fff;font-weight:bold;">${holding.rank}</span></td>
                 <td data-label="股票"><div class="stock-id">${holding.code}</div><div class="stock-name">${holding.name}</div></td>
-                <td data-label="股價" class="align-right stock-price">$${formatNumber(holding.price, 2)}</td>
+                <td data-label="股價" class="align-right stock-price">${priceDisplay}</td>
                 <td data-label="股數" class="stock-shares">${sharesDisplay}</td>
                 <td data-label="比例" class="align-right">${weightDisplay}</td>
                 <td data-label="狀態" class="align-right">${renderStatus(holding)}</td>

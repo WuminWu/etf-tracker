@@ -201,6 +201,18 @@ def get_price(code):
 
 def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, units=0):
     prev_dict = {h["code"]: h for h in prev_holdings}
+    # 讀取前一次 data JSON 取得各股前一交易日股價
+    prev_prices_map = {}
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as _pf:
+                _prev_json = json.load(_pf)
+            for _ph in _prev_json.get("holdings", []):
+                if _ph.get("price", 0) > 0:
+                    prev_prices_map[_ph["code"]] = _ph["price"]
+        except Exception:
+            pass
+
     final_output = []
     total = len(today_holdings)
     log.info(f"Fetching prices for {total} stocks...")
@@ -222,6 +234,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, 
             "shares": shares_today,
             "prevShares": shares_prev,
             "price": round(price, 2),
+            "prevPrice": prev_prices_map.get(h["code"], 0),
             "yestWeight": weight_prev,
             "todayWeight": weight_today,
             "diffShares": diff_shares,
@@ -243,6 +256,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, 
                 "shares": 0,
                 "prevShares": prev_h["shares"],
                 "price": round(price, 2),
+                "prevPrice": prev_prices_map.get(prev_h["code"], 0),
                 "yestWeight": prev_h["weight"],
                 "todayWeight": 0.0,
                 "diffShares": diff_shares,
