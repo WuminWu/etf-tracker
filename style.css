@@ -341,7 +341,7 @@ tbody tr:last-child td {
 
 /* Cash row */
 .cash-row {
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .cash-row td {
     opacity: 0.8;

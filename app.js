@@ -97,6 +97,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderTable = (holdings) => {
         tbody.innerHTML = '';
+
+        // ── 現金及其他 row（序號 0，固定在第一列）──────────────
+        const cashWeight = Math.max(0, parseFloat(
+            (100 - holdings.filter(h => h.shares > 0)
+                .reduce((s, h) => s + (h.todayWeight || 0), 0)).toFixed(2)
+        ));
+        const prevCashWeight = Math.max(0, parseFloat(
+            (100 - holdings.reduce((s, h) => s + (h.yestWeight || 0), 0)).toFixed(2)
+        ));
+        if (cashWeight > 0.01 || prevCashWeight > 0.01) {
+            const cashWeightDisplay = (() => {
+                if (!prevCashWeight || Math.abs(prevCashWeight - cashWeight) < 0.01)
+                    return `<span class="cash-weight-pill">${cashWeight.toFixed(2)}%</span>`;
+                const diff = cashWeight - prevCashWeight;
+                const arrow = `<span style="color:#6b7280;">→</span>`;
+                return `<span style="color:#9ca3af;font-size:0.8em;">${prevCashWeight.toFixed(2)}%</span> ${arrow} <span class="cash-weight-pill">${cashWeight.toFixed(2)}%</span> <span style="color:${diff > 0 ? '#60a5fa' : '#f59e0b'};font-size:0.8em;">(${diff > 0 ? '+' : ''}${diff.toFixed(2)}%)</span>`;
+            })();
+            const cashTr = document.createElement('tr');
+            cashTr.className = 'cash-row';
+            cashTr.innerHTML = `
+                <td data-label="序號"><span style="display:inline-block;width:30px;height:30px;line-height:30px;text-align:center;border-radius:50%;background:#1e293b;color:#6b7280;font-weight:bold;">0</span></td>
+                <td data-label="股票"><div class="stock-id" style="color:#60a5fa;">💰</div><div class="stock-name" style="color:#9ca3af;">現金及其他</div></td>
+                <td data-label="股價" class="align-right stock-price" style="color:#4b5563;">—</td>
+                <td data-label="股數" class="stock-shares" style="color:#4b5563;">—</td>
+                <td data-label="比例" class="align-right">${cashWeightDisplay}</td>
+                <td data-label="狀態" class="align-right"><span style="color:#4b5563;">—</span></td>
+                <td data-label="加/減碼股數" class="align-right"><span style="color:#4b5563;">—</span></td>
+                <td data-label="加/減碼金額" class="align-right"><span style="color:#4b5563;">—</span></td>
+            `;
+            tbody.appendChild(cashTr);
+        }
+
         holdings.forEach((holding, index) => {
             const tr = document.createElement('tr');
             tr.style.animation = `fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) ${Math.min(0.1 + index * 0.02, 1)}s forwards`;
@@ -142,36 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
             tbody.appendChild(tr);
         });
 
-        // ── 現金及其他 row ──────────────────────────────────────
-        const cashWeight = Math.max(0, parseFloat(
-            (100 - holdings.filter(h => h.shares > 0)
-                .reduce((s, h) => s + (h.todayWeight || 0), 0)).toFixed(2)
-        ));
-        const prevCashWeight = Math.max(0, parseFloat(
-            (100 - holdings.reduce((s, h) => s + (h.yestWeight || 0), 0)).toFixed(2)
-        ));
-        if (cashWeight > 0.01 || prevCashWeight > 0.01) {
-            const cashWeightDisplay = (() => {
-                if (!prevCashWeight || Math.abs(prevCashWeight - cashWeight) < 0.01)
-                    return `<span class="cash-weight-pill">${cashWeight.toFixed(2)}%</span>`;
-                const diff = cashWeight - prevCashWeight;
-                const arrow = `<span style="color:#6b7280;">→</span>`;
-                return `<span style="color:#9ca3af;font-size:0.8em;">${prevCashWeight.toFixed(2)}%</span> ${arrow} <span class="cash-weight-pill">${cashWeight.toFixed(2)}%</span> <span style="color:${diff > 0 ? '#60a5fa' : '#f59e0b'};font-size:0.8em;">(${diff > 0 ? '+' : ''}${diff.toFixed(2)}%)</span>`;
-            })();
-            const cashTr = document.createElement('tr');
-            cashTr.className = 'cash-row';
-            cashTr.innerHTML = `
-                <td data-label="序號"><span style="color:#4b5563;">—</span></td>
-                <td data-label="股票"><div class="stock-id" style="color:#60a5fa;">💰</div><div class="stock-name" style="color:#9ca3af;">現金及其他</div></td>
-                <td data-label="股價" class="align-right stock-price" style="color:#4b5563;">—</td>
-                <td data-label="股數" class="stock-shares" style="color:#4b5563;">—</td>
-                <td data-label="比例" class="align-right">${cashWeightDisplay}</td>
-                <td data-label="狀態" class="align-right"><span style="color:#4b5563;">—</span></td>
-                <td data-label="加/減碼股數" class="align-right"><span style="color:#4b5563;">—</span></td>
-                <td data-label="加/減碼金額" class="align-right"><span style="color:#4b5563;">—</span></td>
-            `;
-            tbody.appendChild(cashTr);
-        }
     };
 
     const resetHeaderIcons = () => {
