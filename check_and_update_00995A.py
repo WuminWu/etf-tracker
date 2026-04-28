@@ -375,7 +375,7 @@ def build_notification(wrapper):
     if added:
         lines.append("\n新增持股：")
         for h in added:
-            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['shares'])}（{h['todayWeight']}%）")
+            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['shares'])}（0% → {h['todayWeight']}%）")
     if removed:
         lines.append("\n出清持股：")
         for h in removed:
@@ -383,11 +383,11 @@ def build_notification(wrapper):
     if increased:
         lines.append("\n🔴 加碼明細：")
         for h in increased[:10]:
-            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}（{h['todayWeight']}%）")
+            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}（{h['yestWeight']}% → {h['todayWeight']}%）")
     if decreased:
         lines.append("\n🟢 減碼明細：")
         for h in decreased[:10]:
-            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}（{h['todayWeight']}%）")
+            lines.append(f"  • {h['code']} {h['name']}　{fmt_zhang(h['diffShares'])}（{h['yestWeight']}% → {h['todayWeight']}%）")
     lines.append(f"\n🕐 更新時間：{meta['lastUpdate']} (台灣時間)")
     lines.append("https://wuminwu.github.io/woody-etf-tracker/")
     return "\n".join(lines)
