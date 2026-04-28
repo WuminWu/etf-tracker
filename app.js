@@ -188,20 +188,29 @@ document.addEventListener('DOMContentLoaded', () => {
         applySortAndRender();
     });
 
-    // ── ETF 配息設定 ──────────────────────────────────────────
-    // distMonths: 配息月份陣列（請依實際公開說明書核對）
-    // distDay: 預計配息日（每月幾號），超過當月最後一天時自動取月底
+    // ── ETF 配息設定（依各基金公開說明書）──────────────────────
+    // distMonths: 除息月份陣列  distDay: 預計除息日（超過月底自動取月底）
     const ETF_DIST = {
-        '00980A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
-        '00981A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
-        '00982A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
-        '00985A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
-        '00987A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
-        '00988A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
-        '00991A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
+        // 季配息：2/5/8/11月，除息日約18日（依歷史紀錄）
+        '00980A': { distFreq: '季配息', distMonths: [2,5,8,11], distDay: 18 },
+        // 季配息：3/6/9/12月，除息日約17日（依歷史紀錄）
+        '00981A': { distFreq: '季配息', distMonths: [3,6,9,12], distDay: 17 },
+        // 季配息：2/5/8/11月，除息日約18日（依歷史紀錄）
+        '00982A': { distFreq: '季配息', distMonths: [2,5,8,11], distDay: 18 },
+        // 年配息：每年12月底評價（上市2025/07/01，首次配息2026/12）
+        '00985A': { distFreq: '年配息', distMonths: [12], distDay: 31 },
+        // 年配息：每年10/31後35個營業日內（約12月中旬）（上市2025/12/03）
+        '00987A': { distFreq: '年配息', distMonths: [12], distDay: 20 },
+        // 年配息：每年9月（上市2025/10，首次配息2026/09）
+        '00988A': { distFreq: '年配息', distMonths: [9],  distDay: 30 },
+        // 半年配：每年6月底及12月底
+        '00991A': { distFreq: '半年配', distMonths: [6,12], distDay: 30 },
+        // 季配息：1/4/7/10月（上市2025/12/30，首次配息約2026/04）
         '00992A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
-        '00993A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
-        '00995A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 25 },
+        // 年配息：每年12月底評價（上市2026/02/03，首次配息2026/12）
+        '00993A': { distFreq: '年配息', distMonths: [12], distDay: 31 },
+        // 季配息：1/4/7/10月（上市2026/01/22，首次評價2026/09）
+        '00995A': { distFreq: '季配息', distMonths: [1,4,7,10], distDay: 31 },
     };
 
     // 計算下一次配息日（distMonths 需已排序）
