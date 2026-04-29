@@ -59,18 +59,20 @@ def update_etf_prices():
         data["meta"]["ytd"] = ytd
         data["meta"]["etfPrice"] = price
         data["meta"]["priceDate"] = now_str[:10]  # YYYY-MM-DD only
-        # Update totalShares & totalMarketCap from yfinance totalAssets
+        # Update priceChange & prevPrice based on ytd history
         try:
-            _info = yf.Ticker(f"{code}.TW").info
-            _assets = float(_info.get("totalAssets") or 0)
-            if _assets > 0 and price > 0:
-                data["meta"]["totalShares"] = round(_assets / price) // 1000
-                data["meta"]["totalMarketCap"] = round(_assets / 1e8, 2)
+            hist = yf.Ticker(f"{code}.TW").history(period="ytd", timeout=10)
+            if len(hist) >= 2:
+                prev_p = round(float(hist["Close"].iloc[-2]), 2)
+                data["meta"]["prevPrice"] = prev_p
+                data["meta"]["priceChange"] = round((price - prev_p) / prev_p * 100, 2)
         except Exception:
-            # Fallback: recalculate market cap from existing totalShares
-            total_shares_zhang = data["meta"].get("totalShares") or 0
-            if total_shares_zhang and price:
-                data["meta"]["totalMarketCap"] = round(price * total_shares_zhang * 1000 / 1e8, 2)
+            pass
+        # Recalculate totalMarketCap from existing totalShares × new price
+        # (totalShares is only authoritative from official XLSX — do NOT overwrite it here)
+        total_shares_zhang = data["meta"].get("totalShares") or 0
+        if total_shares_zhang and price:
+            data["meta"]["totalMarketCap"] = round(price * total_shares_zhang * 1000 / 1e8, 2)
 
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
