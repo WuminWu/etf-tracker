@@ -37,6 +37,32 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+
+# --------------- Taiwan Market Holidays ---------------
+# Update this set annually. Weekends are already skipped by weekday() check.
+# Source: https://www.twse.com.tw/ (TWSE official holiday calendar)
+from datetime import date as _date
+TW_MARKET_HOLIDAYS = {
+    _date(2026, 1, 1),   # 元旦 New Year's Day
+    _date(2026, 2, 16),  # 農曆除夕 (Chinese New Year Eve)
+    _date(2026, 2, 17),  # 農曆初一 (Chinese New Year)
+    _date(2026, 2, 18),  # 農曆初二
+    _date(2026, 2, 19),  # 農曆初三
+    _date(2026, 2, 20),  # 農曆初四
+    _date(2026, 2, 28),  # 和平紀念日 (Peace Memorial Day)
+    _date(2026, 5, 1),   # 勞動節 (Labor Day)
+    _date(2026, 10, 10), # 國慶日 (National Day)
+}
+
+
+def prev_trading_day(d):
+    """Return the most recent trading day before d (skip weekends and TW holidays)."""
+    candidate = d - timedelta(days=1)
+    while candidate.weekday() >= 5 or candidate in TW_MARKET_HOLIDAYS:
+        candidate -= timedelta(days=1)
+    return candidate
+
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -117,7 +143,8 @@ def parse_fund_assets(raw_data):
         units_raw = float(str(fa.get("Units", "0")).replace(",", ""))
         units_zhang = int(units_raw // 1000)
         nav = float(fa.get("Nav", 0))
-        pcf_date_str = str(fa.get("PCFDate", fa.get("NavDate", ""))).replace("/", "-")
+        # Prefer NavDate (actual data date) over PCFDate (future creation/redemption basket date)
+        pcf_date_str = str(fa.get("NavDate", fa.get("PCFDate", ""))).replace("/", "-")
         log.info(f"AUM: {aum_ntd:,.0f} NTD, Units: {units_zhang:,}張, NAV: {nav}, PCF Date: {pcf_date_str}")
     except Exception as e:
         log.warning(f"FundAsset parse error: {e}")
@@ -303,13 +330,7 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str,
             prev_meta = _prev.get("meta", {})
             # 計算前一個交易日（跳過週末）
             _d = datetime.strptime(data_date_str, "%Y-%m-%d").date()
-            _delta = 1
-            while True:
-                _candidate = _d - timedelta(days=_delta)
-                if _candidate.weekday() < 5:
-                    _prev_trading_day = _candidate.strftime("%Y-%m-%d")
-                    break
-                _delta += 1
+            _prev_trading_day = prev_trading_day(_d).strftime("%Y-%m-%d")
             if prev_meta.get("dataDate", "") == _prev_trading_day:
                 prev_total_shares = prev_meta.get("totalShares", 0)
                 prev_total_market_cap = prev_meta.get("totalMarketCap", 0.0)
@@ -432,9 +453,21 @@ def main():
         log.error("No holdings parsed. Exiting.")
         return
 
+    run_date = datetime.now(timezone(timedelta(hours=8))).date()
+
     if not data_date_str:
-        data_date_str = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
-        log.warning(f"PCFDate missing, using today: {data_date_str}")
+        data_date_str = prev_trading_day(run_date).strftime("%Y-%m-%d")
+        log.warning(f"NavDate missing, using prev trading day: {data_date_str}")
+    else:
+        # Validate: reject future dates and weekend dates (e.g. PCFDate is often next week's basket)
+        try:
+            parsed_date = datetime.strptime(data_date_str, "%Y-%m-%d").date()
+            if parsed_date > run_date or parsed_date.weekday() >= 5 or parsed_date in TW_MARKET_HOLIDAYS:
+                log.warning(f"API date {data_date_str} is future/weekend/holiday, clamping to prev trading day")
+                data_date_str = prev_trading_day(run_date).strftime("%Y-%m-%d")
+        except ValueError:
+            data_date_str = prev_trading_day(run_date).strftime("%Y-%m-%d")
+            log.warning(f"Could not parse API date, using prev trading day: {data_date_str}")
 
     log.info(f"Data date: {data_date_str}")
 

@@ -94,7 +94,7 @@ def fetch_holdings(date_str):
         with urllib.request.urlopen(req, timeout=30) as r:
             result = json.loads(r.read())
         table = result["Entries"]["Data"]["Table"][0]
-        nav_date = table.get("NavDate", "")
+        nav_date = table.get("NavDate", "").replace("/", "-")
         rows = table["Rows"]
         log.info(f"Got {len(rows)} stocks, NavDate={nav_date}")
         holdings = []

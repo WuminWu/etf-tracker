@@ -5,12 +5,12 @@
         "etfPrice": 12.9,
         "priceChange": -1.83,
         "prevPrice": 13.14,
-        "dataDate": "2026-05-11",
-        "lastUpdate": "2026-05-08 18:02",
+        "dataDate": "2026-05-08",
+        "lastUpdate": "2026-05-08 19:18",
         "totalShares": 927091,
-        "prevTotalShares": 927091,
+        "prevTotalShares": 0,
         "totalMarketCap": 119.67,
-        "prevTotalMarketCap": 119.59
+        "prevTotalMarketCap": 0.0
     },
     "holdings": [
         {
