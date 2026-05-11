@@ -75,12 +75,12 @@ TW_MARKET_HOLIDAYS = {
 # --------------- Helpers ---------------
 
 def next_trading_day(date):
-    """Return the next calendar day, skipping weekends (not holidays).
+    """Return the next trading day, skipping weekends and Taiwan market holidays.
     Capital Fund website: selecting date D gives the holdings of the previous trading day.
-    So to fetch today's holdings, we must input tomorrow's date (next trading day).
+    So to fetch today's holdings, we must input tomorrow's trading day (T+1).
     """
     d = date + timedelta(days=1)
-    while d.weekday() >= 5:  # 5=Sat, 6=Sun
+    while d.weekday() >= 5 or d in TW_MARKET_HOLIDAYS:
         d += timedelta(days=1)
     return d
 
@@ -463,20 +463,21 @@ def git_push():
 
 def main():
     # Capital Fund date logic:
-    #   Selecting date D on the website returns holdings from the PREVIOUS trading day.
-    #   So to get today's (trading day T) holdings, we input the next trading day (T+1).
+    #   Inputting date D on the website returns the PREVIOUS trading day's holdings.
+    #   After market close on day T, capitalfund's site auto-defaults to T+1 (next trading day)
+    #   and displays T's actual holdings.
     #
-    # Script runs on T+1 (the next trading day after market close of T).
-    # - form_date  = today (T+1) → fetches T's holdings
-    # - data_date  = prev_trading_day(today) = T
-    # - save file  = data_date
+    # Script schedule (daily_update.yml): 15:00–19:30 TW time, AFTER 13:30 market close.
+    # To fetch today's (T) holdings:
+    #   - form_date = next_trading_day(today) = T+1  → returns T's holdings (D → D-1 rule)
+    #   - data_date = today (T)                       → the actual data this XLSX represents
+    #   - save file = data_date
 
     now = datetime.now(timezone(timedelta(hours=8)))
     run_date = now.date()
-    # The actual holdings date = the previous trading day relative to today
-    data_date = prev_trading_day(run_date)
+    data_date = run_date  # holdings represent today's (T) market close
     data_date_str = data_date.strftime("%Y-%m-%d")
-    form_date_str = run_date.strftime("%Y/%m/%d")  # input into the website form
+    form_date_str = next_trading_day(run_date).strftime("%Y/%m/%d")  # input T+1 to receive T's data
 
     log.info(f"=== 00982A Check & Update started ===")
     log.info(f"  Run date (today):    {run_date}")
