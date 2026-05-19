@@ -798,10 +798,32 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ── Stock History Modal ────────────────────────────────────
-    const modalOverlay = document.getElementById('history-modal-overlay');
+    // 動態建立 modal，避免依賴 HTML 快取狀態
+    const ensureModal = () => {
+        let overlay = document.getElementById('history-modal-overlay');
+        if (overlay) return overlay;
+        overlay = document.createElement('div');
+        overlay.id = 'history-modal-overlay';
+        overlay.className = 'modal-overlay';
+        overlay.style.display = 'none';
+        overlay.innerHTML = `
+            <div class="modal-box glass-panel" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h3 id="history-modal-title"><i class="fa-solid fa-clock-rotate-left"></i> 加減碼紀錄</h3>
+                    <button class="modal-close" id="history-modal-close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="modal-body" id="history-modal-body">
+                    <p style="color:var(--text-secondary);text-align:center;padding:1rem;">載入中...</p>
+                </div>
+            </div>`;
+        document.body.appendChild(overlay);
+        return overlay;
+    };
+    const modalOverlay = ensureModal();
     const modalTitle = document.getElementById('history-modal-title');
     const modalBody = document.getElementById('history-modal-body');
     const modalClose = document.getElementById('history-modal-close');
+    console.log('[ETF Tracker] modal ready:', !!modalOverlay, !!modalTitle, !!modalBody);
 
     const loadHistory = () => {
         if (historyData) return Promise.resolve(historyData);
