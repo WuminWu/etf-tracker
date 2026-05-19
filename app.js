@@ -66,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // status sort cycles: 0=default, 1=positive first (新增→加碼→持平→減碼→出清), -1=negative first
     let statusDir     = 1;
     let globalData    = [];
+    let currentEtfId  = null;
+    let historyData   = null;
+    let historyPromise = null;
 
     // status rank: higher = shown first in positive-first order
     const statusRank = (h) => {
@@ -141,6 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         holdings.forEach((holding, index) => {
             const tr = document.createElement('tr');
+            tr.className = 'clickable-stock';
+            tr.dataset.code = holding.code;
+            tr.dataset.name = holding.name;
+            tr.addEventListener('click', () => openHistoryModal(holding.code, holding.name));
             tr.style.animation = `fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) ${Math.min(0.1 + index * 0.02, 1)}s forwards`;
             tr.style.opacity = '0';
             tr.style.transform = 'translateY(10px)';
@@ -284,6 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const etfSelector = document.getElementById('etf-selector');
 
     const loadData = (etfId) => {
+        currentEtfId = etfId;
         sortMode = 'weight';
         resetHeaderIcons();
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;">載入中，請稍候...</td></tr>';
@@ -786,6 +794,91 @@ document.addEventListener('DOMContentLoaded', () => {
             if (elUpd && dates.length) elUpd.textContent = `資料更新時間：${dates[dates.length - 1]}`;
 
             commonLoaded = true;
+        });
+    };
+
+    // ── Stock History Modal ────────────────────────────────────
+    const modalOverlay = document.getElementById('history-modal-overlay');
+    const modalTitle = document.getElementById('history-modal-title');
+    const modalBody = document.getElementById('history-modal-body');
+    const modalClose = document.getElementById('history-modal-close');
+
+    const loadHistory = () => {
+        if (historyData) return Promise.resolve(historyData);
+        if (historyPromise) return historyPromise;
+        historyPromise = fetch('history.json')
+            .then(r => r.ok ? r.json() : {})
+            .then(d => { historyData = d; return d; })
+            .catch(() => { historyData = {}; return {}; });
+        return historyPromise;
+    };
+
+    const closeModal = () => { modalOverlay.style.display = 'none'; };
+    if (modalClose) modalClose.addEventListener('click', closeModal);
+    if (modalOverlay) modalOverlay.addEventListener('click', e => {
+        if (e.target === modalOverlay) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modalOverlay.style.display !== 'none') closeModal();
+    });
+
+    const fmt = n => Number(Math.abs(n)).toLocaleString('zh-TW');
+
+    const openHistoryModal = (code, name) => {
+        modalTitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${code} ${name} <span style="color:var(--text-secondary);font-size:0.82em;font-weight:400;margin-left:0.4em;">@ ${currentEtfId}</span>`;
+        modalBody.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:1rem;"><i class="fa-solid fa-spinner fa-spin"></i> 載入中...</p>';
+        modalOverlay.style.display = 'flex';
+
+        loadHistory().then(data => {
+            const records = data?.[currentEtfId]?.[code] || [];
+            if (!records.length) {
+                modalBody.innerHTML = `
+                    <div style="text-align:center;padding:2rem 1rem;color:var(--text-secondary);">
+                        <i class="fa-solid fa-circle-info" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:0.75rem;"></i>
+                        近期無加減碼紀錄
+                        <p style="font-size:0.78rem;margin-top:0.5rem;opacity:0.6;">（${currentEtfId} 對 ${code} ${name} 尚未出現股數變動）</p>
+                    </div>`;
+                return;
+            }
+
+            const rowsHtml = records.map(([date, ds, da]) => {
+                const dsColor = ds > 0 ? '#ff4d4d' : '#4ade80';
+                const dsSign = ds > 0 ? '+' : '-';
+                const daColor = da > 0 ? '#ff4d4d' : '#4ade80';
+                const daSign = da > 0 ? '+' : '-';
+                const amtStr = da !== 0
+                    ? `<span style="color:${daColor};font-weight:600;">${daSign}$${fmt(Math.round(da))}</span>`
+                    : `<span style="color:#6b7280;">—</span>`;
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td class="align-right"><span style="color:${dsColor};font-weight:700;">${dsSign}${fmt(ds)}</span></td>
+                        <td class="align-right">${amtStr}</td>
+                    </tr>`;
+            }).join('');
+
+            const totalShares = records.reduce((s, r) => s + r[1], 0);
+            const totalAmount = records.reduce((s, r) => s + r[2], 0);
+            const totalSharesColor = totalShares >= 0 ? '#ff4d4d' : '#4ade80';
+            const totalSharesSign = totalShares >= 0 ? '+' : '-';
+            const totalAmtColor = totalAmount >= 0 ? '#ff4d4d' : '#4ade80';
+            const totalAmtSign = totalAmount >= 0 ? '+' : '-';
+
+            modalBody.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;padding:0.75rem 1rem;background:rgba(255,255,255,0.03);border-radius:0.5rem;font-size:0.85rem;">
+                    <span style="color:var(--text-secondary);">共 <strong style="color:var(--text-primary);">${records.length}</strong> 筆變動</span>
+                    <span>累計 <span style="color:${totalSharesColor};font-weight:700;">${totalSharesSign}${fmt(totalShares)}</span> 股　/　<span style="color:${totalAmtColor};font-weight:700;">${totalAmtSign}$${fmt(Math.round(Math.abs(totalAmount)))}</span></span>
+                </div>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th class="align-right">加減碼股數</th>
+                            <th class="align-right">加減碼金額</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>`;
         });
     };
 

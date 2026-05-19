@@ -50,11 +50,12 @@ jobs:
           python check_and_update_00995A.py || true
           python check_and_update_index.py || true
           python record_common_actions.py || true
+          python export_history.py || true
 
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data_*.json holdings/
+          git add data_*.json holdings/ history.json
           git diff --quiet && git diff --staged --quiet || \
             git commit -m "Auto-update ETF holdings $(date +'%Y-%m-%d')" && git push
