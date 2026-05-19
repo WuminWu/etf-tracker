@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabHoldings = document.getElementById('tab-holdings');
     const tabCross    = document.getElementById('tab-cross');
     const tabSearch   = document.getElementById('tab-search');
+    const tabCommon   = document.getElementById('tab-common');
     const appHeader   = document.querySelector('.app-header');
     const ytdRankingBar = document.getElementById('ytd-ranking-bar');
 
@@ -18,26 +19,35 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             activeTab = btn.dataset.tab;
 
-            if (activeTab === 'holdings') {
-                tabHoldings.style.display = '';
+            const hideAll = () => {
+                tabHoldings.style.display = 'none';
                 tabCross.style.display = 'none';
                 tabSearch.style.display = 'none';
+                if (tabCommon) tabCommon.style.display = 'none';
+            };
+            if (activeTab === 'holdings') {
+                hideAll();
+                tabHoldings.style.display = '';
                 appHeader.style.display = '';
                 if (ytdRankingBar) ytdRankingBar.style.display = '';
             } else if (activeTab === 'cross') {
-                tabHoldings.style.display = 'none';
+                hideAll();
                 tabCross.style.display = '';
-                tabSearch.style.display = 'none';
                 appHeader.style.display = 'none';
                 if (ytdRankingBar) ytdRankingBar.style.display = '';
                 loadCrossData();
             } else if (activeTab === 'search') {
-                tabHoldings.style.display = 'none';
-                tabCross.style.display = 'none';
+                hideAll();
                 tabSearch.style.display = '';
                 appHeader.style.display = 'none';
                 if (ytdRankingBar) ytdRankingBar.style.display = '';
                 loadCrossData();
+            } else if (activeTab === 'common') {
+                hideAll();
+                tabCommon.style.display = '';
+                appHeader.style.display = 'none';
+                if (ytdRankingBar) ytdRankingBar.style.display = '';
+                loadCommonActions();
             }
         });
     });
@@ -691,5 +701,92 @@ document.addEventListener('DOMContentLoaded', () => {
             searchInput.focus();
         });
     }
+
+    // ── Common Add/Reduce Tab ──────────────────────────────────
+    let commonLoaded = false;
+
+    const classifyAction = (curr, prev) => {
+        // returns 'add' (新增/加碼), 'reduce' (減碼/出清), or null
+        prev = prev ?? 0;
+        if (curr > prev) return 'add';        // 加碼 (含新增 prev=0)
+        if (curr < prev) return 'reduce';     // 減碼 (含出清 curr=0)
+        return null;
+    };
+
+    const renderCommonRows = (rows, tbodyId, color) => {
+        const body = document.getElementById(tbodyId);
+        body.innerHTML = '';
+        if (rows.length === 0) {
+            body.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-secondary);padding:1.5rem;">今日無 2 檔以上 ETF 共同${tbodyId.includes('add') ? '加碼' : '減碼'}的標的</td></tr>`;
+            return;
+        }
+        rows.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.style.animation = `fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) ${Math.min(0.05 + index * 0.015, 0.8)}s forwards`;
+            tr.style.opacity = '0';
+            tr.style.transform = 'translateY(10px)';
+            const tags = row.etfs.map(e => `
+                <span class="etf-tag">
+                    <span class="etf-tag-id">${e.etfId}</span>
+                    <span class="etf-tag-name">${e.etfName}</span>
+                </span>`).join('');
+            tr.innerHTML = `
+                <td data-label="序號"><span style="display:inline-block;width:30px;height:30px;line-height:30px;text-align:center;border-radius:50%;background:#334155;color:#fff;font-weight:bold;">${index + 1}</span></td>
+                <td data-label="股票"><div class="stock-id">${row.code}</div><div class="stock-name">${row.name}</div></td>
+                <td data-label="ETF 清單"><div class="etf-tags">${tags}</div></td>
+                <td data-label="ETF 數" class="align-right"><span class="cross-count-badge" style="background:${color};color:#fff;">${row.etfs.length}</span></td>
+            `;
+            body.appendChild(tr);
+        });
+    };
+
+    const loadCommonActions = () => {
+        if (commonLoaded) return;
+        document.getElementById('common-add-body').innerHTML =
+            '<tr><td colspan="4" style="text-align:center;padding:2rem;">載入中...</td></tr>';
+        document.getElementById('common-reduce-body').innerHTML =
+            '<tr><td colspan="4" style="text-align:center;padding:2rem;">載入中...</td></tr>';
+
+        Promise.all(ETF_LIST.map(etf =>
+            fetch(`data_${etf.id}.json`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => data ? { etf, holdings: data.holdings, meta: data.meta } : null)
+                .catch(() => null)
+        )).then(results => {
+            const valid = results.filter(Boolean);
+            const addMap = new Map();    // code -> {code, name, etfs[]}
+            const reduceMap = new Map();
+
+            valid.forEach(({ etf, holdings }) => {
+                holdings.forEach(h => {
+                    const action = classifyAction(h.shares, h.prevShares);
+                    if (!action) return;
+                    const target = action === 'add' ? addMap : reduceMap;
+                    if (!target.has(h.code)) {
+                        target.set(h.code, { code: h.code, name: h.name, etfs: [] });
+                    }
+                    target.get(h.code).etfs.push({ etfId: etf.id, etfName: etf.name });
+                });
+            });
+
+            const addRows = Array.from(addMap.values())
+                .filter(s => s.etfs.length >= 2)
+                .sort((a, b) => b.etfs.length - a.etfs.length || a.code.localeCompare(b.code));
+            const reduceRows = Array.from(reduceMap.values())
+                .filter(s => s.etfs.length >= 2)
+                .sort((a, b) => b.etfs.length - a.etfs.length || a.code.localeCompare(b.code));
+
+            renderCommonRows(addRows, 'common-add-body', 'linear-gradient(135deg,#ef4444,#b91c1c)');
+            renderCommonRows(reduceRows, 'common-reduce-body', 'linear-gradient(135deg,#22c55e,#15803d)');
+
+            const badge = document.getElementById('common-badge');
+            if (badge) badge.textContent = `加碼 ${addRows.length} 檔 / 減碼 ${reduceRows.length} 檔`;
+            const dates = valid.map(v => v.meta.lastUpdate).filter(Boolean).sort();
+            const elUpd = document.getElementById('common-update-time');
+            if (elUpd && dates.length) elUpd.textContent = `資料更新時間：${dates[dates.length - 1]}`;
+
+            commonLoaded = true;
+        });
+    };
 
 });

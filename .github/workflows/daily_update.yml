@@ -49,6 +49,7 @@ jobs:
           python check_and_update_00993A.py || true
           python check_and_update_00995A.py || true
           python check_and_update_index.py || true
+          python record_common_actions.py || true
 
       - name: Commit and push changes
         run: |
