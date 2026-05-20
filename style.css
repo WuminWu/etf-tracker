@@ -776,16 +776,24 @@ tbody tr:last-child td {
 
 /* Stock History Modal */
 .modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    background: rgba(0, 0, 0, 0.75);
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 999999 !important;
+    background: rgba(0, 0, 0, 0.75) !important;
     backdrop-filter: blur(6px);
-    display: flex;
     align-items: center;
     justify-content: center;
-    animation: lightboxFadeIn 0.2s ease;
     padding: 1rem;
+}
+.modal-overlay.is-open {
+    display: flex !important;
+    animation: lightboxFadeIn 0.2s ease;
 }
 
 .modal-box {

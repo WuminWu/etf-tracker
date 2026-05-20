@@ -147,7 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.className = 'clickable-stock';
             tr.dataset.code = holding.code;
             tr.dataset.name = holding.name;
-            tr.addEventListener('click', () => openHistoryModal(holding.code, holding.name));
+            tr.addEventListener('click', (e) => {
+                console.log('[ETF Tracker] row clicked:', holding.code, holding.name, 'currentEtfId=', currentEtfId);
+                openHistoryModal(holding.code, holding.name);
+            });
             tr.style.animation = `fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) ${Math.min(0.1 + index * 0.02, 1)}s forwards`;
             tr.style.opacity = '0';
             tr.style.transform = 'translateY(10px)';
@@ -835,21 +838,33 @@ document.addEventListener('DOMContentLoaded', () => {
         return historyPromise;
     };
 
-    const closeModal = () => { modalOverlay.style.display = 'none'; };
+    const closeModal = () => {
+        modalOverlay.classList.remove('is-open');
+        modalOverlay.style.display = 'none';
+    };
     if (modalClose) modalClose.addEventListener('click', closeModal);
     if (modalOverlay) modalOverlay.addEventListener('click', e => {
         if (e.target === modalOverlay) closeModal();
     });
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && modalOverlay.style.display !== 'none') closeModal();
+        if (e.key === 'Escape' && modalOverlay.classList.contains('is-open')) closeModal();
     });
 
     const fmt = n => Number(Math.abs(n)).toLocaleString('zh-TW');
 
     const openHistoryModal = (code, name) => {
-        modalTitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${code} ${name} <span style="color:var(--text-secondary);font-size:0.82em;font-weight:400;margin-left:0.4em;">@ ${currentEtfId}</span>`;
-        modalBody.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:1rem;"><i class="fa-solid fa-spinner fa-spin"></i> 載入中...</p>';
-        modalOverlay.style.display = 'flex';
+        console.log('[ETF Tracker] openHistoryModal called:', code, name);
+        try {
+            modalTitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${code} ${name} <span style="color:var(--text-secondary);font-size:0.82em;font-weight:400;margin-left:0.4em;">@ ${currentEtfId}</span>`;
+            modalBody.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:1rem;"><i class="fa-solid fa-spinner fa-spin"></i> 載入中...</p>';
+            modalOverlay.style.removeProperty('display');
+            modalOverlay.classList.add('is-open');
+            const cs = getComputedStyle(modalOverlay);
+            console.log('[ETF Tracker] modal displayed, display=', cs.display, 'visibility=', cs.visibility, 'opacity=', cs.opacity, 'z-index=', cs.zIndex);
+        } catch (err) {
+            console.error('[ETF Tracker] modal open error:', err);
+            return;
+        }
 
         loadHistory().then(data => {
             const records = data?.[currentEtfId]?.[code] || [];
