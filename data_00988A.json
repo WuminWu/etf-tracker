@@ -1,16 +1,17 @@
 {
     "meta": {
         "manager": "陳意婷",
-        "ytd": "80.63",
-        "etfPrice": 18.28,
-        "priceChange": -5.09,
-        "prevPrice": 19.26,
+        "ytd": "80.04",
+        "etfPrice": 18.22,
+        "priceChange": -0.33,
+        "prevPrice": 18.28,
         "dataDate": "2026-05-18",
         "lastUpdate": "2026-05-19 21:57",
         "totalShares": 1999937,
         "prevTotalShares": 1940437,
-        "totalMarketCap": 369.71,
-        "prevTotalMarketCap": 354.71
+        "totalMarketCap": 364.39,
+        "prevTotalMarketCap": 354.71,
+        "priceDate": "2026-05-20"
     },
     "holdings": [
         {
