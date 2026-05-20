@@ -801,22 +801,54 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ── Stock History Modal ────────────────────────────────────
-    // 動態建立 modal，避免依賴 HTML 快取狀態
+    // 動態建立 modal 並 inline 所有關鍵樣式，避免依賴 CSS / HTML 快取狀態
     const ensureModal = () => {
-        let overlay = document.getElementById('history-modal-overlay');
-        if (overlay) return overlay;
-        overlay = document.createElement('div');
+        // 移除舊版（若存在）以保證 inline style 一致
+        const existing = document.getElementById('history-modal-overlay');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
         overlay.id = 'history-modal-overlay';
-        overlay.className = 'modal-overlay';
-        overlay.style.display = 'none';
+        overlay.setAttribute('style', [
+            'position:fixed',
+            'top:0', 'left:0', 'right:0', 'bottom:0',
+            'width:100vw', 'height:100vh',
+            'z-index:2147483647',
+            'background:rgba(0,0,0,0.75)',
+            'backdrop-filter:blur(6px)',
+            '-webkit-backdrop-filter:blur(6px)',
+            'display:none',
+            'align-items:center',
+            'justify-content:center',
+            'padding:1rem',
+            'opacity:1',
+            'visibility:visible',
+        ].join(';'));
+
         overlay.innerHTML = `
-            <div class="modal-box glass-panel" onclick="event.stopPropagation()">
-                <div class="modal-header">
-                    <h3 id="history-modal-title"><i class="fa-solid fa-clock-rotate-left"></i> 加減碼紀錄</h3>
-                    <button class="modal-close" id="history-modal-close"><i class="fa-solid fa-xmark"></i></button>
+            <div id="history-modal-box" style="
+                width:100%;max-width:560px;max-height:85vh;
+                display:flex;flex-direction:column;padding:1.5rem;
+                background:rgba(30,41,59,0.95);
+                backdrop-filter:blur(16px);
+                border:1px solid rgba(255,255,255,0.08);
+                border-radius:1.5rem;
+                box-shadow:0 20px 60px rgba(0,0,0,0.8);
+                opacity:1;
+            " onclick="event.stopPropagation()">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:0.75rem;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:1rem;">
+                    <h3 id="history-modal-title" style="font-size:1.05rem;font-weight:600;color:#f8fafc;margin:0;"><i class="fa-solid fa-clock-rotate-left"></i> 加減碼紀錄</h3>
+                    <button id="history-modal-close" style="
+                        width:32px;height:32px;border-radius:50%;
+                        background:rgba(255,255,255,0.05);
+                        border:1px solid rgba(255,255,255,0.08);
+                        color:#94a3b8;cursor:pointer;
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:1rem;
+                    "><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div class="modal-body" id="history-modal-body">
-                    <p style="color:var(--text-secondary);text-align:center;padding:1rem;">載入中...</p>
+                <div id="history-modal-body" style="flex:1;overflow-y:auto;color:#f8fafc;">
+                    <p style="color:#94a3b8;text-align:center;padding:1rem;">載入中...</p>
                 </div>
             </div>`;
         document.body.appendChild(overlay);
@@ -839,7 +871,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const closeModal = () => {
-        modalOverlay.classList.remove('is-open');
         modalOverlay.style.display = 'none';
     };
     if (modalClose) modalClose.addEventListener('click', closeModal);
@@ -847,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === modalOverlay) closeModal();
     });
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && modalOverlay.classList.contains('is-open')) closeModal();
+        if (e.key === 'Escape' && modalOverlay.style.display !== 'none') closeModal();
     });
 
     const fmt = n => Number(Math.abs(n)).toLocaleString('zh-TW');
@@ -857,8 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             modalTitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${code} ${name} <span style="color:var(--text-secondary);font-size:0.82em;font-weight:400;margin-left:0.4em;">@ ${currentEtfId}</span>`;
             modalBody.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:1rem;"><i class="fa-solid fa-spinner fa-spin"></i> 載入中...</p>';
-            modalOverlay.style.removeProperty('display');
-            modalOverlay.classList.add('is-open');
+            modalOverlay.style.display = 'flex';
             const cs = getComputedStyle(modalOverlay);
             console.log('[ETF Tracker] modal displayed, display=', cs.display, 'visibility=', cs.visibility, 'opacity=', cs.opacity, 'z-index=', cs.zIndex);
         } catch (err) {
