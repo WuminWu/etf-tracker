@@ -736,11 +736,30 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.style.animation = `fadeInUp 0.3s cubic-bezier(0.16,1,0.3,1) ${Math.min(0.05 + index * 0.015, 0.8)}s forwards`;
             tr.style.opacity = '0';
             tr.style.transform = 'translateY(10px)';
-            const tags = row.etfs.map(e => `
+            const tags = row.etfs.map(e => {
+                const prev = e.yestWeight, curr = e.todayWeight;
+                let weightHtml = '';
+                if (curr != null) {
+                    if (prev == null || prev === 0) {
+                        // 新增
+                        weightHtml = `<span class="etf-tag-weight" style="background:rgba(167,139,250,0.2);color:#a78bfa;">+${curr}%</span>`;
+                    } else if (prev === curr) {
+                        weightHtml = `<span class="etf-tag-weight">${curr}%</span>`;
+                    } else {
+                        const color = curr > prev ? '#ff4d4d' : '#4ade80';
+                        weightHtml = `<span style="color:#9ca3af;font-size:0.78em;">${prev}%</span> <span style="color:${color};font-weight:700;">→</span> <span class="etf-tag-weight" style="color:${color};background:${curr > prev ? 'rgba(239,68,68,0.15)' : 'rgba(74,222,128,0.15)'};">${curr}%</span>`;
+                    }
+                } else if (prev != null && prev > 0) {
+                    // 出清
+                    weightHtml = `<span style="color:#9ca3af;font-size:0.78em;">${prev}%</span> <span style="color:#f97316;font-weight:700;">→</span> <span class="etf-tag-weight" style="color:#f97316;background:rgba(249,115,22,0.15);">0%</span>`;
+                }
+                return `
                 <span class="etf-tag">
                     <span class="etf-tag-id">${e.etfId}</span>
                     <span class="etf-tag-name">${e.etfName}</span>
-                </span>`).join('');
+                    ${weightHtml}
+                </span>`;
+            }).join('');
             tr.innerHTML = `
                 <td data-label="序號"><span style="display:inline-block;width:30px;height:30px;line-height:30px;text-align:center;border-radius:50%;background:#334155;color:#fff;font-weight:bold;">${index + 1}</span></td>
                 <td data-label="股票"><div class="stock-id">${row.code}</div><div class="stock-name">${row.name}</div></td>
@@ -776,7 +795,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!target.has(h.code)) {
                         target.set(h.code, { code: h.code, name: h.name, etfs: [] });
                     }
-                    target.get(h.code).etfs.push({ etfId: etf.id, etfName: etf.name });
+                    target.get(h.code).etfs.push({
+                        etfId: etf.id,
+                        etfName: etf.name,
+                        yestWeight: h.yestWeight,
+                        todayWeight: h.todayWeight,
+                    });
                 });
             });
 
