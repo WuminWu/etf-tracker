@@ -56,6 +56,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data_*.json holdings/ history.json
+          git add data_*.json holdings/
+          [ -f history.json ] && git add history.json || echo "history.json not produced this run, skipping"
           git diff --quiet && git diff --staged --quiet || \
             git commit -m "Auto-update ETF holdings $(date +'%Y-%m-%d')" && git push

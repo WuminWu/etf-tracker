@@ -76,10 +76,12 @@ def main():
     kept = 0
 
     for row in rows[1:]:  # skip header
-        if len(row) < 10:
+        # Sheets API 省略 row 尾端空值，補齊到 10 欄
+        padded = row + [""] * (10 - len(row))
+        if len(padded) < 4 or not padded[0] or not padded[1] or not padded[2]:
             skipped += 1
             continue
-        date, etf, stock_code, _name, _shares, _tw, _yw, _price, diff_shares, diff_amount = row[:10]
+        date, etf, stock_code, _name, _shares, _tw, _yw, _price, diff_shares, diff_amount = padded[:10]
         try:
             ds = int(float(diff_shares)) if diff_shares not in ("", None) else 0
         except (ValueError, TypeError):
