@@ -84,9 +84,15 @@
                     <h2><i class="fa-solid fa-layer-group"></i> ETF持股明細</h2>
                     <span class="badge" id="update-date" style="display:none;"></span>
                 </div>
-                <div class="last-update-bar">
-                    <i class="fa-regular fa-clock"></i>
-                    <span id="last-update-time">資料載入中...</span>
+                <div class="last-update-bar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+                    <span><i class="fa-regular fa-clock"></i> <span id="last-update-time">資料載入中...</span></span>
+                    <span class="date-picker-wrap" style="display:flex;align-items:center;gap:0.4rem;">
+                        <i class="fa-solid fa-calendar-days" style="color:var(--text-secondary);font-size:0.85rem;"></i>
+                        <label for="date-picker" style="color:var(--text-secondary);font-size:0.85rem;">查看日期：</label>
+                        <select id="date-picker" class="etf-select" style="min-width:160px;font-size:0.85rem;padding:0.3rem 0.6rem;">
+                            <option value="latest">最新</option>
+                        </select>
+                    </span>
                 </div>
                 <div class="table-container">
                     <table id="holdings-table">
@@ -268,6 +274,6 @@
         <div id="lightbox-close">✕</div>
     </div>
 
-    <script src="app.js?v=12"></script>
+    <script src="app.js?v=13"></script>
 </body>
 </html>

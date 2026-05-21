@@ -67,6 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let statusDir     = 1;
     let globalData    = [];
     let currentEtfId  = null;
+    let currentDate   = 'latest';      // 'latest' or 'YYYY-MM-DD'
+    let manifest      = null;
+    let manifestPromise = null;
     let historyData   = null;
     let historyPromise = null;
 
@@ -293,8 +296,116 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const etfSelector = document.getElementById('etf-selector');
 
+    // ── Snapshots / Manifest ───────────────────────────────────
+    const loadManifest = () => {
+        if (manifest) return Promise.resolve(manifest);
+        if (manifestPromise) return manifestPromise;
+        manifestPromise = fetch('snapshots/manifest.json')
+            .then(r => r.ok ? r.json() : null)
+            .then(m => { manifest = m || { dates: [], etfs: {} }; return manifest; })
+            .catch(() => { manifest = { dates: [], etfs: {} }; return manifest; });
+        return manifestPromise;
+    };
+
+    const refreshDatePicker = (etfId) => {
+        const picker = document.getElementById('date-picker');
+        if (!picker) return;
+        loadManifest().then(m => {
+            const etfDates = (m.etfs && m.etfs[etfId]) ? m.etfs[etfId] : [];
+            // 由新到舊
+            const sorted = [...etfDates].sort().reverse();
+            const prevValue = picker.value;
+            picker.innerHTML = '<option value="latest">最新</option>'
+                + sorted.map(d => `<option value="${d}">${d}</option>`).join('');
+            // 保留先前的選擇 (若該 ETF 仍有此日期)
+            if (prevValue && (prevValue === 'latest' || sorted.includes(prevValue))) {
+                picker.value = prevValue;
+            } else {
+                picker.value = 'latest';
+                currentDate = 'latest';
+            }
+        });
+    };
+
+    const loadSnapshot = (etfId, date) => {
+        currentEtfId = etfId;
+        currentDate = date;
+        sortMode = 'weight';
+        resetHeaderIcons();
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;">載入中，請稍候...</td></tr>';
+
+        fetch(`snapshots/${date}.json`)
+            .then(r => { if (!r.ok) throw new Error('no snapshot'); return r.json(); })
+            .then(allEtfs => {
+                const etfBlock = allEtfs[etfId];
+                if (!etfBlock) {
+                    showNoDataModal(etfId, date);
+                    // revert to latest
+                    document.getElementById('date-picker').value = 'latest';
+                    loadData(etfId);
+                    return;
+                }
+                renderFromSnapshot(etfId, etfBlock, date);
+            })
+            .catch(() => {
+                showNoDataModal(etfId, date);
+                document.getElementById('date-picker').value = 'latest';
+                loadData(etfId);
+            });
+    };
+
+    const showNoDataModal = (etfId, date) => {
+        // 重用 history modal 的 DOM
+        modalTitle.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="color:#f59e0b;"></i> 該日期無持股資料`;
+        modalBody.innerHTML = `
+            <div style="text-align:center;padding:2rem 1rem;color:var(--text-secondary);">
+                <i class="fa-solid fa-calendar-xmark" style="font-size:2.5rem;opacity:0.4;display:block;margin-bottom:0.75rem;"></i>
+                <p style="font-size:1rem;color:var(--text-primary);margin-bottom:0.5rem;">${etfId} 於 ${date} 沒有持股資料</p>
+                <p style="font-size:0.82rem;opacity:0.7;">該 ETF 可能尚未發行、或為週末/假日。<br>請改選其他日期。</p>
+            </div>`;
+        modalOverlay.style.display = 'flex';
+    };
+
+    const renderFromSnapshot = (etfId, block, date) => {
+        const meta = block.meta || {};
+        globalData = block.holdings || [];
+
+        const elSubtitle = document.getElementById('header-subtitle');
+        if (elSubtitle) {
+            elSubtitle.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> 歷史快照模式：<strong style="color:#60a5fa;">${date}</strong> &nbsp; <span style="color:var(--text-secondary);font-size:0.85em;">（股價、市值等顯示當日資料）</span>`;
+        }
+
+        const elLastUpdate = document.getElementById('last-update-time');
+        if (elLastUpdate) {
+            elLastUpdate.innerHTML = `<span style="font-weight:600;color:var(--text-primary);">持股資料日期：${date}</span>　<span style="color:#f59e0b;font-size:0.82em;">（歷史快照）</span>`;
+        }
+
+        const elScale = document.getElementById('etf-scale-info');
+        if (elScale) {
+            const fmtZhang = n => n >= 10000 ? `${(n / 10000).toFixed(1)}萬張` : `${n.toLocaleString()}張`;
+            const sharesNow = meta.totalShares || 0;
+            const capNow = meta.totalMarketCap || 0;
+            elScale.innerHTML = `<i class="fa-solid fa-layer-group"></i> 基金規模：${fmtZhang(sharesNow)} &nbsp;|&nbsp; <i class="fa-solid fa-coins"></i> 市值：${capNow.toFixed(2)}億`;
+            elScale.style.display = '';
+        }
+
+        // 配息資訊維持顯示
+        const elDistFreq = document.getElementById('stat-dist-freq');
+        const elDistNext = document.getElementById('stat-dist-next');
+        const distCfg = ETF_DIST[etfId];
+        if (elDistFreq && distCfg) elDistFreq.textContent = distCfg.distFreq;
+        if (elDistNext) elDistNext.textContent = '';
+
+        // 隱藏經理人卡（歷史模式）
+        const managerCardImg = document.getElementById('manager-card-img');
+        if (managerCardImg) managerCardImg.style.display = 'none';
+
+        applySortAndRender();
+    };
+
     const loadData = (etfId) => {
         currentEtfId = etfId;
+        currentDate = 'latest';
         sortMode = 'weight';
         resetHeaderIcons();
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;">載入中，請稍候...</td></tr>';
@@ -429,12 +540,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     etfSelector.addEventListener('change', e => {
-        loadData(e.target.value);
+        const id = e.target.value;
+        loadData(id);
+        refreshDatePicker(id);
         document.querySelectorAll('.ytd-item').forEach(el => {
-            el.classList.toggle('ytd-item-active', el.dataset.etf === e.target.value);
+            el.classList.toggle('ytd-item-active', el.dataset.etf === id);
         });
     });
+
+    const datePicker = document.getElementById('date-picker');
+    if (datePicker) {
+        datePicker.addEventListener('change', e => {
+            const v = e.target.value;
+            if (v === 'latest') {
+                loadData(currentEtfId);
+            } else {
+                loadSnapshot(currentEtfId, v);
+            }
+        });
+    }
+
     loadData(etfSelector.value);
+    refreshDatePicker(etfSelector.value);
 
     // ── YTD Ranking ────────────────────────────────────────────
     const ALL_ETFS = [
