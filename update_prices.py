@@ -10,6 +10,24 @@ from pathlib import Path
 
 import yfinance as yf
 
+# 新發行 ETF 的 YTD 應以 IPO 掛牌價為基準（yfinance 在上市初期回傳的「年內第一筆」
+# 不見得是 IPO 價，會造成 YTD 失真）。掛牌當年沿用此設定，跨年後自然失效。
+IPO_BASELINE = {
+    # code: (ipo_date YYYY-MM-DD, ipo_price)
+    "00403A": ("2026-05-12", 10.0),
+}
+
+
+def get_ipo_baseline(code):
+    """若 code 屬於 IPO 當年，回傳 (date, price)；否則 None。"""
+    if code not in IPO_BASELINE:
+        return None
+    ipo_date, ipo_price = IPO_BASELINE[code]
+    ipo_year = int(ipo_date.split("-")[0])
+    now_year = datetime.now(timezone(timedelta(hours=8))).year
+    return (ipo_date, ipo_price) if now_year == ipo_year else None
+
+
 ETFS = [
     ("00981A", "data_00981A.json"),
     ("00403A", "data_00403A.json"),
@@ -25,14 +43,21 @@ ETFS = [
 ]
 
 
-def fetch_ytd_price(ticker_symbol):
+def fetch_ytd_price(ticker_symbol, code=None):
     try:
         hist = yf.Ticker(ticker_symbol).history(period="ytd", timeout=10)
         if len(hist) >= 2:
-            first = hist["Close"].iloc[0]
             last = hist["Close"].iloc[-1]
-            ytd = f"{((last - first) / first) * 100:.2f}"
             price = round(float(last), 2)
+
+            # 若是 IPO 當年的新 ETF，以 IPO 掛牌價當 baseline
+            baseline = get_ipo_baseline(code) if code else None
+            if baseline:
+                _, ipo_price = baseline
+                ytd = f"{((float(last) - ipo_price) / ipo_price) * 100:.2f}"
+            else:
+                first = hist["Close"].iloc[0]
+                ytd = f"{((float(last) - float(first)) / float(first)) * 100:.2f}"
             return ytd, price
     except Exception as e:
         print(f"  Warning: {ticker_symbol} fetch failed: {e}", file=sys.stderr)
@@ -49,7 +74,7 @@ def update_etf_prices():
             print(f"  Skip {data_file} (not found)")
             continue
 
-        ytd, price = fetch_ytd_price(f"{code}.TW")
+        ytd, price = fetch_ytd_price(f"{code}.TW", code=code)
         if ytd is None:
             print(f"  {code}: no data, skipping")
             continue

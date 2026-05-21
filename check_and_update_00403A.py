@@ -287,15 +287,25 @@ def generate_data_json(today_holdings, prev_holdings, data_date_str, aum_ntd=0, 
         item["rank"] = idx + 1
 
     # ETF price & YTD
+    # 00403A 為 2026/5/12 掛牌新 ETF，掛牌價 10 元；YTD 以掛牌價為基準計算
+    # (yfinance 回傳的「年內第一筆」收盤不見得等於 IPO 價，會造成 YTD 失真)
+    IPO_DATE  = "2026-05-12"
+    IPO_PRICE = 10.0
+    ipo_year  = int(IPO_DATE.split("-")[0])
     ytd_val, etf_price, price_change, prev_price = "0.00", 0.0, 0.0, 0.0
     try:
         hist = yf.Ticker(f"{ETF_CODE}.TW").history(period="ytd", timeout=10)
         if len(hist) >= 2:
-            ytd_val      = f"{((hist['Close'].iloc[-1] - hist['Close'].iloc[0]) / hist['Close'].iloc[0]) * 100:.2f}"
             etf_price    = round(float(hist["Close"].iloc[-1]), 2)
             price_change = round(float((hist["Close"].iloc[-1] - hist["Close"].iloc[-2]) / hist["Close"].iloc[-2] * 100), 2)
             prev_price   = round(float(hist["Close"].iloc[-2]), 2)
-            log.info(f"ETF Price: {etf_price}, YTD: {ytd_val}%")
+            current_year = datetime.now(timezone(timedelta(hours=8))).year
+            if current_year == ipo_year:
+                ytd_val = f"{((etf_price - IPO_PRICE) / IPO_PRICE) * 100:.2f}"
+                log.info(f"ETF Price: {etf_price}, YTD (IPO baseline {IPO_PRICE}): {ytd_val}%")
+            else:
+                ytd_val = f"{((hist['Close'].iloc[-1] - hist['Close'].iloc[0]) / hist['Close'].iloc[0]) * 100:.2f}"
+                log.info(f"ETF Price: {etf_price}, YTD: {ytd_val}%")
     except Exception as e:
         log.warning(f"Failed to fetch ETF price/YTD: {e}")
 
