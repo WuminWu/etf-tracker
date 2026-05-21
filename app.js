@@ -842,6 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Common Add/Reduce Tab ──────────────────────────────────
     let commonLoaded = false;
+    let commonCurrentDate = 'latest';
 
     const classifyAction = (curr, prev) => {
         // returns 'add' (新增/加碼), 'reduce' (減碼/出清), or null
@@ -897,19 +898,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const loadCommonActions = () => {
-        if (commonLoaded) return;
+    const refreshCommonDatePicker = () => {
+        const picker = document.getElementById('common-date-picker');
+        if (!picker) return;
+        loadManifest().then(m => {
+            const dates = (m.dates || []).slice().sort().reverse();
+            const prev = picker.value;
+            picker.innerHTML = '<option value="latest">最新</option>'
+                + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+            if (prev && (prev === 'latest' || dates.includes(prev))) picker.value = prev;
+        });
+    };
+
+    const loadCommonActions = (force = false) => {
+        if (commonLoaded && !force) return;
         document.getElementById('common-add-body').innerHTML =
             '<tr><td colspan="4" style="text-align:center;padding:2rem;">載入中...</td></tr>';
         document.getElementById('common-reduce-body').innerHTML =
             '<tr><td colspan="4" style="text-align:center;padding:2rem;">載入中...</td></tr>';
 
-        Promise.all(ETF_LIST.map(etf =>
-            fetch(`data_${etf.id}.json`)
+        const fetchPromise = commonCurrentDate === 'latest'
+            ? Promise.all(ETF_LIST.map(etf =>
+                fetch(`data_${etf.id}.json`)
+                    .then(r => r.ok ? r.json() : null)
+                    .then(data => data ? { etf, holdings: data.holdings, meta: data.meta } : null)
+                    .catch(() => null)
+              ))
+            : fetch(`snapshots/${commonCurrentDate}.json`)
                 .then(r => r.ok ? r.json() : null)
-                .then(data => data ? { etf, holdings: data.holdings, meta: data.meta } : null)
-                .catch(() => null)
-        )).then(results => {
+                .then(snap => {
+                    if (!snap) return [];
+                    return ETF_LIST.map(etf => {
+                        const block = snap[etf.id];
+                        return block ? { etf, holdings: block.holdings, meta: block.meta } : null;
+                    });
+                })
+                .catch(() => []);
+
+        Promise.resolve(fetchPromise).then(results => {
             const valid = results.filter(Boolean);
             const addMap = new Map();    // code -> {code, name, etfs[]}
             const reduceMap = new Map();
@@ -943,13 +969,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const badge = document.getElementById('common-badge');
             if (badge) badge.textContent = `加碼 ${addRows.length} 檔 / 減碼 ${reduceRows.length} 檔`;
-            const dates = valid.map(v => v.meta.lastUpdate).filter(Boolean).sort();
             const elUpd = document.getElementById('common-update-time');
-            if (elUpd && dates.length) elUpd.textContent = `資料更新時間：${dates[dates.length - 1]}`;
+            if (elUpd) {
+                if (commonCurrentDate === 'latest') {
+                    const dates = valid.map(v => v.meta && v.meta.lastUpdate).filter(Boolean).sort();
+                    elUpd.textContent = dates.length ? `資料更新時間：${dates[dates.length - 1]}` : '';
+                } else {
+                    elUpd.innerHTML = `<span style="font-weight:600;color:var(--text-primary);">資料日期：${commonCurrentDate}</span>　<span style="color:#f59e0b;font-size:0.82em;">（歷史快照）</span>`;
+                }
+            }
 
             commonLoaded = true;
         });
     };
+
+    const commonDatePicker = document.getElementById('common-date-picker');
+    if (commonDatePicker) {
+        commonDatePicker.addEventListener('change', e => {
+            commonCurrentDate = e.target.value;
+            loadCommonActions(true);
+        });
+    }
+    refreshCommonDatePicker();
 
     // ── Stock History Modal ────────────────────────────────────
     // 動態建立 modal 並 inline 所有關鍵樣式，避免依賴 CSS / HTML 快取狀態
