@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tabCommon.style.display = '';
                 appHeader.style.display = 'none';
                 if (ytdRankingBar) ytdRankingBar.style.display = '';
-                loadCommonActions();
+                loadCommonActions(true);   // 每次切換到此 tab 都強制重新抓
             }
         });
     });
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sortMode = 'weight';
         resetHeaderIcons();
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;">載入中，請稍候...</td></tr>';
-        fetch(`data_${etfId}.json`)
+        fetch(`data_${etfId}.json?t=${Date.now()}`, { cache: 'no-store' })
             .then(r => { if (!r.ok) throw new Error('無資料檔'); return r.json(); })
             .then(data => {
                 const meta = data.meta;
@@ -592,8 +592,9 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(() => {});
 
+        const tBust = Date.now();
         Promise.all(ALL_ETFS.map(etf =>
-            fetch(`data_${etf.id}.json`)
+            fetch(`data_${etf.id}.json?t=${tBust}`, { cache: 'no-store' })
                 .then(r => r.ok ? r.json() : null)
                 .then(data => data ? { id: etf.id, name: etf.name, ytd: parseFloat(data.meta.ytd), etfPrice: data.meta.etfPrice } : null)
                 .catch(() => null)
@@ -917,9 +918,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('common-reduce-body').innerHTML =
             '<tr><td colspan="4" style="text-align:center;padding:2rem;">載入中...</td></tr>';
 
+        const bust = `?t=${Date.now()}`;   // bypass GitHub Pages / browser cache
         const fetchPromise = commonCurrentDate === 'latest'
             ? Promise.all(ETF_LIST.map(etf =>
-                fetch(`data_${etf.id}.json`)
+                fetch(`data_${etf.id}.json${bust}`, { cache: 'no-store' })
                     .then(r => r.ok ? r.json() : null)
                     .then(data => data ? { etf, holdings: data.holdings, meta: data.meta } : null)
                     .catch(() => null)
