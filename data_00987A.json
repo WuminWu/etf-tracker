@@ -1,16 +1,17 @@
 {
     "meta": {
         "manager": "魏永祥",
-        "ytd": "80.38",
-        "etfPrice": 18.11,
-        "priceChange": -0.06,
-        "prevPrice": 18.12,
+        "ytd": "74.10",
+        "etfPrice": 17.48,
+        "priceChange": -3.48,
+        "prevPrice": 18.11,
         "dataDate": "2026-05-27",
         "lastUpdate": "2026-05-27 18:55",
         "totalShares": 203739,
         "prevTotalShares": 203739,
-        "totalMarketCap": 36.9,
-        "prevTotalMarketCap": 36.9
+        "totalMarketCap": 35.61,
+        "prevTotalMarketCap": 36.9,
+        "priceDate": "2026-05-28"
     },
     "holdings": [
         {
