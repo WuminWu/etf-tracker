@@ -2,9 +2,11 @@ name: Daily ETF Holdings Update
 
 on:
   schedule:
-    # 台灣時間 15:00–19:30（UTC+8），週一至週五，每 30 分鐘，共 10 次
-    # UTC 07:00–11:30，Mon–Fri
-    - cron: '0,30 7-11 * * 1-5'
+    # 台灣時間 17:15–21:45（UTC+8），週一至週五，每 30 分鐘，共 10 次
+    # UTC 09:15–13:45，Mon–Fri
+    # 改成 :15/:45 避開 GitHub Actions 整點高負載延遲；範圍拉到 21:45 涵蓋實際延後
+    # 的觸發時點，並對齊台灣主動式 ETF 官網持股的實際發佈時間（17:30 後）
+    - cron: '15,45 9-13 * * 1-5'
   workflow_dispatch:
 
 permissions:
